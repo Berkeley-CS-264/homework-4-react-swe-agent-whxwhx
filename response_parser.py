@@ -40,4 +40,38 @@ DO NOT CHANGE ANY TEST! AS THEY WILL BE USED FOR EVALUATION.
         
         TODO(student): Implement this function using rfind to parse the function call
         """
-        raise NotImplementedError("parse method must be implemented by the student")
+        if not isinstance(text, str):
+            raise TypeError("LLM response must be a string.")
+
+        end_idx = text.rfind(self.END_CALL)
+        if end_idx == -1:
+            raise ValueError("Missing END_FUNCTION_CALL marker.")
+
+        begin_idx = text.rfind(self.BEGIN_CALL, 0, end_idx)
+        if begin_idx == -1:
+            raise ValueError("Missing BEGIN_FUNCTION_CALL marker.")
+
+        thought = text[:begin_idx].strip()
+        call_block = text[begin_idx + len(self.BEGIN_CALL):end_idx].strip()
+        if not call_block:
+            raise ValueError("Empty function call block.")
+
+        sections = call_block.split(self.ARG_SEP)
+        function_name = sections[0].strip()
+        if not function_name:
+            raise ValueError("Function name is missing.")
+
+        arguments = {}
+        for section in sections[1:]:
+            if not section.strip():
+                continue
+            if self.VALUE_SEP not in section:
+                raise ValueError("Argument missing VALUE separator.")
+            arg_name_part, value_part = section.split(self.VALUE_SEP, 1)
+            arg_name = arg_name_part.strip()
+            if not arg_name:
+                raise ValueError("Argument name is empty.")
+            arg_value = value_part.strip()
+            arguments[arg_name] = arg_value
+
+        return {"thought": thought, "name": function_name, "arguments": arguments}

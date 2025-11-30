@@ -1,6 +1,8 @@
 from utils import get_sb_environment
 import subprocess
 import swebench
+import base64
+import shlex
 
 class LimitsExceeded(Exception):
     """Raised when the agent has reached its step limit."""
@@ -67,13 +69,41 @@ class SWEEnvironment:
         """
         [Optional] Replace the content of the file from the given line to the given line with the given content
         """
-        raise NotImplementedError("replace_in_file must be implemented by the student")
+        if from_line < 1 or to_line < from_line:
+            raise ValueError("Invalid line range supplied.")
+
+        encoded_content = base64.b64encode(content.encode("utf-8")).decode("utf-8")
+        command = f"""python - <<'PY'
+import base64
+from pathlib import Path
+
+path = Path(r"{file_path}")
+if not path.exists():
+    raise FileNotFoundError(f"File not found: {file_path}")
+
+text = path.read_text()
+lines = text.splitlines(keepends=True)
+
+start = max(0, {from_line} - 1)
+end = min(len(lines), max(start, {to_line}))
+
+replacement_text = base64.b64decode("{encoded_content}").decode("utf-8")
+replacement_lines = replacement_text.splitlines(keepends=True)
+
+new_lines = lines[:start] + replacement_lines + lines[end:]
+new_text = "".join(new_lines)
+
+path.write_text(new_text)
+print(f"Replaced lines {from_line}-{to_line} in {file_path}")
+PY"""
+        return self.env.execute(command)
 
     def show_file(self, file_path: str) -> str:
         """
         [Optional]Show the content of the file
         """
-        raise NotImplementedError("show_file must be implemented by the student")
+        quoted_path = shlex.quote(file_path)
+        return self.env.execute(f"cat {quoted_path}")
 
 class DumbEnvironment:
     """

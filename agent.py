@@ -17,6 +17,7 @@ import time
 from response_parser import ResponseParser
 from llm import LLM, OpenAIModel
 import inspect
+from envs import LimitsExceeded
 
 class ReactAgent:
     """
@@ -34,8 +35,11 @@ class ReactAgent:
 
         # Message list storage
         self.id_to_message: List[Dict[str, Any]] = []
+        # Expose messages for trajectory dump utilities
+        self.messages = self.id_to_message
         self.root_message_id: int = -1
         self.current_message_id: int = -1
+        self._next_message_id: int = 0
 
         # Registered tools
         self.function_map: Dict[str, Callable] = {}
@@ -56,7 +60,15 @@ class ReactAgent:
         
         TODO(student): Implement this function to add a message to the list
         """
-        raise NotImplementedError("add_message must be implemented by the student")
+        message = {
+            "role": role,
+            "content": content,
+            "timestamp": time.time(),
+            "unique_id": self._next_message_id,
+        }
+        self.id_to_message.append(message)
+        self._next_message_id += 1
+        return len(self.id_to_message) - 1
 
     def set_message_content(self, message_id: int, content: str) -> None:
         """
@@ -64,7 +76,9 @@ class ReactAgent:
         
         TODO(student): Implement this function to update a message's content
         """
-        raise NotImplementedError("set_message_content must be implemented by the student")
+        if not (0 <= message_id < len(self.id_to_message)):
+            raise IndexError(f"Message id {message_id} is out of range.")
+        self.id_to_message[message_id]["content"] = content
 
     def get_context(self) -> str:
         """
@@ -72,7 +86,10 @@ class ReactAgent:
         
         TODO(student): Implement this function to build the context from the message list
         """
-        raise NotImplementedError("get_context must be implemented by the student")
+        contexts: List[str] = []
+        for idx in range(len(self.id_to_message)):
+            contexts.append(self.message_id_to_context(idx))
+        return "\n".join(contexts)
 
     # -------------------- REQUIRED TOOLS --------------------
     def add_functions(self, tools: List[Callable]):
@@ -85,7 +102,10 @@ class ReactAgent:
         
         TODO(student): Implement this function to register tools and build tool descriptions
         """
-        raise NotImplementedError("add_functions must be implemented by the student")
+        for tool in tools:
+            if not callable(tool):
+                raise ValueError(f"Tool {tool} is not callable.")
+            self.function_map[tool.__name__] = tool
     
     def finish(self, result: str):
         """The agent must call this function with the final result when it has solved the given task. The function calls "git add -A and git diff --cached" to generate a patch and returns the patch as submission.
@@ -117,7 +137,46 @@ class ReactAgent:
         # self.set_message_content(self.user_message_id, task)
         
         # Main ReAct loop
-        raise NotImplementedError("run method must be implemented by the student")
+        if max_steps <= 0:
+            raise ValueError("max_steps must be positive")
+        max_steps = min(max_steps, 100)
+
+        self.set_message_content(self.user_message_id, task.strip())
+
+        for step in range(max_steps):
+            context = self.get_context()
+            llm_messages = [{"role": "user", "content": context}]
+            response = self.llm.generate(llm_messages)
+            assistant_message_id = self.add_message("assistant", response)
+
+            parsed = self.parser.parse(response)
+            function_name = parsed["name"]
+            arguments = parsed["arguments"]
+            tool = self.function_map.get(function_name)
+            if tool is None:
+                raise ValueError(f"Tool '{function_name}' is not registered.")
+
+            try:
+                tool_result = tool(**arguments)
+            except TypeError as e:
+                raise ValueError(f"Error calling tool '{function_name}': {e}") from e
+            except Exception as e:
+                tool_result = f"{type(e).__name__}: {e}"
+            else:
+                if not isinstance(tool_result, str):
+                    tool_result = str(tool_result)
+
+            # Record tool execution result
+            tool_message_content = (
+                f"{function_name}(args={arguments})\n"
+                f"----RESULT----\n{tool_result}"
+            )
+            self.add_message("tool", tool_message_content)
+
+            if tool is self.finish:
+                return tool_result
+
+        raise LimitsExceeded(f"Reached {max_steps} steps without calling finish.")
 
     def message_id_to_context(self, message_id: int) -> str:
         """

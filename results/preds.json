@@ -1,0 +1,102 @@
+{
+  "django__django-12406": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-12406",
+    "model_patch": ""
+  },
+  "django__django-14011": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-14011",
+    "model_patch": ""
+  },
+  "django__django-16662": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-16662",
+    "model_patch": ""
+  },
+  "django__django-7530": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-7530",
+    "model_patch": ""
+  },
+  "sphinx-doc__sphinx-7590": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "sphinx-doc__sphinx-7590",
+    "model_patch": ""
+  },
+  "django__django-11179": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-11179",
+    "model_patch": ""
+  },
+  "django__django-16631": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-16631",
+    "model_patch": ""
+  },
+  "django__django-10973": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-10973",
+    "model_patch": ""
+  },
+  "django__django-13297": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-13297",
+    "model_patch": ""
+  },
+  "pytest-dev__pytest-7490": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "pytest-dev__pytest-7490",
+    "model_patch": ""
+  },
+  "django__django-14053": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-14053",
+    "model_patch": ""
+  },
+  "django__django-13810": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "django__django-13810",
+    "model_patch": ""
+  },
+  "scikit-learn__scikit-learn-26323": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "scikit-learn__scikit-learn-26323",
+    "model_patch": ""
+  },
+  "psf__requests-2931": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "psf__requests-2931",
+    "model_patch": ""
+  },
+  "sphinx-doc__sphinx-9230": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "sphinx-doc__sphinx-9230",
+    "model_patch": ""
+  },
+  "psf__requests-1921": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "psf__requests-1921",
+    "model_patch": ""
+  },
+  "sympy__sympy-17655": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "sympy__sympy-17655",
+    "model_patch": ""
+  },
+  "sphinx-doc__sphinx-9658": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "sphinx-doc__sphinx-9658",
+    "model_patch": ""
+  },
+  "sympy__sympy-24213": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "sympy__sympy-24213",
+    "model_patch": ""
+  },
+  "astropy__astropy-7166": {
+    "model_name_or_path": "gpt-5-mini",
+    "instance_id": "astropy__astropy-7166",
+    "model_patch": ""
+  }
+}
