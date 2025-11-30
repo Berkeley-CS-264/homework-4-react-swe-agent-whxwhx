@@ -46,7 +46,14 @@ class ReactAgent:
 
         # Set up the initial structure of the history
         # Create required root nodes and a user node (task)
-        self.system_message_id = self.add_message("system", "You are a Smart ReAct agent.")
+        system_prompt = (
+            "You are a Smart ReAct agent. Always think step-by-step before invoking a tool.\n"
+            "You MUST end every reply with exactly one function call using the provided format.\n"
+            "Valid tools: finish(result: str) for final answers, and any other registered run_* tools.\n"
+            "Never invent tool names. Call run_bash_cmd(command: str) to execute shell commands.\n"
+            "If you cannot proceed, call finish with an explanation."
+        )
+        self.system_message_id = self.add_message("system", system_prompt)
         self.user_message_id = self.add_message("user", "")
         # NOTE: mandatory finish function that terminates the agent
         self.add_functions([self.finish])
@@ -157,7 +164,15 @@ class ReactAgent:
                     f"----RAW_RESPONSE_START----\n{response}\n----RAW_RESPONSE_END----"
                 )
                 print(debug_msg)
-                raise
+                self.add_message(
+                    "system",
+                    (
+                        f"ParserError: {parse_error}. "
+                        "You must ALWAYS end with a valid function call including function name and arguments, "
+                        "following the specified template."
+                    ),
+                )
+                continue
             
             function_name = parsed["name"]
             arguments = parsed["arguments"]

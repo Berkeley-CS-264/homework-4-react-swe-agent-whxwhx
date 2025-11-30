@@ -28,6 +28,12 @@ arg2_value (can be multiline)
 ...
 {END_CALL}
 
+Rules:
+- Exactly one function call per response.
+- function_name MUST match a registered tool (e.g., run_bash_cmd, finish).
+- Every argument must include both a name and value block, even if the value is empty.
+- Never omit the final function call.
+
 DO NOT CHANGE ANY TEST! AS THEY WILL BE USED FOR EVALUATION.
 """
 
