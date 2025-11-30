@@ -147,9 +147,18 @@ class ReactAgent:
             context = self.get_context()
             llm_messages = [{"role": "user", "content": context}]
             response = self.llm.generate(llm_messages)
-            assistant_message_id = self.add_message("assistant", response)
+            self.add_message("assistant", response)
 
-            parsed = self.parser.parse(response)
+            try:
+                parsed = self.parser.parse(response)
+            except ValueError as parse_error:
+                debug_msg = (
+                    f"Failed to parse LLM response: {parse_error}\n"
+                    f"----RAW_RESPONSE_START----\n{response}\n----RAW_RESPONSE_END----"
+                )
+                print(debug_msg)
+                raise
+            
             function_name = parsed["name"]
             arguments = parsed["arguments"]
             tool = self.function_map.get(function_name)
