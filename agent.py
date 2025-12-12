@@ -63,7 +63,7 @@ class ReactAgent:
             "arg2_value\n"
             "...\n"
             "----END_FUNCTION_CALL----\n"
-            "Rules: exactly one function call; every argument must have both ARG and VALUE blocks; never omit END marker.\n"
+            "Rules: exactly one function call; exactly one END marker (do not repeat it); every argument must have both ARG and VALUE blocks; arguments MUST NOT contain BEGIN/END/ARG/VALUE markers; NEVER emit an empty function-call block—if you truly have nothing to do, call finish with an explanation.\n"
             "- Valid tools: finish(result: str) and registered run_* tools (e.g., run_bash_cmd).\n"
             "- Shell commands must be clean: DO NOT include BEGIN/END_FUNCTION_CALL or ARG/VALUE markers; keep them minimal.\n"
             "- After an error, fix inputs and retry rather than repeating the same failure.\n"
@@ -202,7 +202,7 @@ class ReactAgent:
                 continue
             
             function_name = parsed["name"]
-            arguments = parsed["arguments"]
+            arguments = self._sanitize_arguments(parsed["arguments"])
             tool = self.function_map.get(function_name)
             if tool is None:
                 self.add_message(
@@ -213,14 +213,20 @@ class ReactAgent:
                 )
                 continue
 
-            if function_name == "run_bash_cmd":
-                cmd = arguments.get("command", "")
-                if any(marker in cmd for marker in (self.parser.BEGIN_CALL, self.parser.END_CALL, self.parser.ARG_SEP, self.parser.VALUE_SEP)):
-                    self.add_message(
-                        "system",
-                        "Command contained function-call markers. Regenerate a clean shell command without BEGIN/END_FUNCTION_CALL or ARG/VALUE separators.",
-                    )
+            # Reject polluted arguments containing call markers for any tool
+            polluted = False
+            for val in arguments.values():
+                if not isinstance(val, str):
                     continue
+                if any(marker in val for marker in (self.parser.BEGIN_CALL, self.parser.END_CALL, self.parser.ARG_SEP, self.parser.VALUE_SEP)):
+                    polluted = True
+                    break
+            if polluted:
+                self.add_message(
+                    "system",
+                    "Argument values contained function-call markers (BEGIN/END/ARG/VALUE). Regenerate a clean function call with unpolluted arguments.",
+                )
+                continue
 
             try:
                 tool_result = tool(**arguments)
@@ -253,6 +259,23 @@ class ReactAgent:
                 return tool_result
 
         raise LimitsExceeded(f"Reached {max_steps} steps without calling finish.")
+
+    def _sanitize_arguments(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Remove any leaked function-call markers from string arguments by truncating
+        at the first occurrence. This prevents commands like END_FUNCTION_CALL from
+        being passed to tools.
+        """
+        cleaned = {}
+        markers = (self.parser.BEGIN_CALL, self.parser.END_CALL, self.parser.ARG_SEP, self.parser.VALUE_SEP)
+        for k, v in arguments.items():
+            if isinstance(v, str):
+                for marker in markers:
+                    if marker in v:
+                        v = v.split(marker, 1)[0].rstrip()
+                        break
+            cleaned[k] = v
+        return cleaned
 
     def message_id_to_context(self, message_id: int) -> str:
         """
