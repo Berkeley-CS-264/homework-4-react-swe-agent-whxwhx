@@ -57,7 +57,6 @@ class OpenAIModel(LLM):
                 messages=messages,
                 temperature=0.2,
                 max_completion_tokens=4096,
-                stop=[self.stop_token],
             )
             
             text = response.choices[0].message.content
