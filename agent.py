@@ -236,18 +236,15 @@ class ReactAgent:
 
             if tool is self.finish:
                 finish_attempts += 1
+                print(f"finish_attempts: {finish_attempts} tool_result_len: {len(tool_result)}")
                 if not tool_result.strip():
+                    print("finish returned an empty result.")
                     self.add_message(
                         "system",
                         "finish returned an empty result. Ensure you generated a patch (git add -A && git diff --cached) or explain why no changes are needed, then call finish again.",
                     )
                     continue
-                if finish_attempts > 1:
-                    self.add_message(
-                        "system",
-                        "Duplicate finish detected earlier. Only call finish once with the final patch/result.",
-                    )
-                return tool_result
+                return tool_result  
 
         raise LimitsExceeded(f"Reached {max_steps} steps without calling finish.")
 
