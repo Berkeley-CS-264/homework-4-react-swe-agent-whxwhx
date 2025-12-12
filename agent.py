@@ -51,7 +51,8 @@ class ReactAgent:
             "You MUST end every reply with exactly one function call using the provided format.\n"
             "Valid tools: finish(result: str) for final answers, and any other registered run_* tools.\n"
             "Never invent tool names. Call run_bash_cmd(command: str) to execute shell commands.\n"
-            "If you cannot proceed, call finish with an explanation."
+            "Do NOT include BEGIN/END_FUNCTION_CALL markers inside shell commands.\n"
+            "If you cannot proceed, call finish with an explanation. Prefer running a small relevant test before finish when code changed."
         )
         self.system_message_id = self.add_message("system", system_prompt)
         self.user_message_id = self.add_message("user", "")
@@ -150,6 +151,8 @@ class ReactAgent:
 
         self.set_message_content(self.user_message_id, task.strip())
 
+        finish_attempts = 0
+
         for step in range(max_steps):
             context = self.get_context()
             llm_messages = [{"role": "user", "content": context}]
@@ -186,6 +189,15 @@ class ReactAgent:
                 )
                 continue
 
+            if function_name == "run_bash_cmd":
+                cmd = arguments.get("command", "")
+                if any(marker in cmd for marker in (self.parser.BEGIN_CALL, self.parser.END_CALL, self.parser.ARG_SEP, self.parser.VALUE_SEP)):
+                    self.add_message(
+                        "system",
+                        "Command contained function-call markers. Regenerate a clean shell command without BEGIN/END_FUNCTION_CALL or ARG/VALUE separators.",
+                    )
+                    continue
+
             try:
                 tool_result = tool(**arguments)
             except Exception as e:
@@ -202,6 +214,18 @@ class ReactAgent:
             self.add_message("tool", tool_message_content)
 
             if tool is self.finish:
+                finish_attempts += 1
+                if not tool_result.strip():
+                    self.add_message(
+                        "system",
+                        "finish returned an empty result. Ensure you generated a patch (git add -A && git diff --cached) or explain why no changes are needed, then call finish again.",
+                    )
+                    continue
+                if finish_attempts > 1:
+                    self.add_message(
+                        "system",
+                        "Duplicate finish detected earlier. Only call finish once with the final patch/result.",
+                    )
                 return tool_result
 
         raise LimitsExceeded(f"Reached {max_steps} steps without calling finish.")
