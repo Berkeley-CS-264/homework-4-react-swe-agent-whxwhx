@@ -39,36 +39,34 @@ class ReactAgent:
         self.messages = self.id_to_message
         self.root_message_id: int = -1
         self.current_message_id: int = -1
-        self._next_message_id: int = 0
-
         # Registered tools
         self.function_map: Dict[str, Callable] = {}
 
         # Set up the initial structure of the history
         # Create required root nodes and a user node (task)
         system_prompt = (
-            "You are a careful ReAct agent. Think step-by-step, stay concise, and ALWAYS end with EXACTLY ONE function call.\n"
-            "RESPONSE FORMAT (must always appear at end):\n"
-            "your_thoughts_here\n"
-            "...\n"
-            "----BEGIN_FUNCTION_CALL----\n"
-            "function_name\n"
-            "----ARG----\n"
-            "arg1_name\n"
-            "----VALUE----\n"
-            "arg1_value\n"
-            "----ARG----\n"
-            "arg2_name\n"
-            "----VALUE----\n"
-            "arg2_value\n"
-            "...\n"
-            "----END_FUNCTION_CALL----\n"
-            "Rules: exactly one function call; exactly one END marker (do not repeat it); every argument must have both ARG and VALUE blocks; arguments MUST NOT contain BEGIN/END/ARG/VALUE markers; NEVER emit an empty function-call block—if you truly have nothing to do, call finish with an explanation.\n"
-            "- Valid tools: finish(result: str) and all registered tools listed below.\n"
-            "- Shell commands must be clean: DO NOT include BEGIN/END_FUNCTION_CALL or ARG/VALUE markers; keep them minimal.\n"
-            "- After an error, fix inputs and retry rather than repeating the same failure.\n"
-            "- Finish only once, and only after ensuring a meaningful result (prefer a small relevant test when code changed).\n"
-            "- Be brief in reasoning; do not dump tool output (context is truncated)."
+            "You are a careful ReAct-style software engineering agent operating inside a real codebase.\n"
+            "\n"
+            "Your job: solve the user's task by iterating between (1) brief reasoning and (2) tool use.\n"
+            "You have access to tools described below; use them to inspect files, run commands, and produce a final patch/result.\n"
+            "\n"
+            "CRITICAL OUTPUT RULES (must follow exactly):\n"
+            "- Every assistant message MUST end with EXACTLY ONE function call using the provided textual protocol.\n"
+            "- The function call block MUST be the final thing in the message (no extra text after END marker).\n"
+            "- Do NOT output JSON or XML. Do NOT output multiple function calls.\n"
+            "- Do NOT include any of these markers anywhere except in the final call block: "
+            "----BEGIN_FUNCTION_CALL----, ----END_FUNCTION_CALL----, ----ARG----, ----VALUE----.\n"
+            "- Argument values may be multiline.\n"
+            "\n"
+            "HOW TO WORK:\n"
+            "- Prefer small, verifiable steps. When unsure, inspect the repo using run_bash_cmd.\n"
+            "- If a tool fails, read the error and retry with corrected arguments.\n"
+            "\n"
+            "FINISHING:\n"
+            "- Only call finish when the task is complete.\n"
+            "- If the task requires code changes, generate the final patch by running: "
+            "`git add -A && git diff --cached` via run_bash_cmd, then in the next message, pass the resulting diff text as finish(result=...).\n"
+            "- Never call finish with an empty result.\n"
         )
         self.system_message_id = self.add_message("system", system_prompt)
         self.user_message_id = self.add_message("user", "")
@@ -84,15 +82,14 @@ class ReactAgent:
         
         TODO(student): Implement this function to add a message to the list
         """
+        self.current_message_id += 1
         message = {
             "role": role,
             "content": content,
             "timestamp": time.time(),
-            "unique_id": self._next_message_id,
+            "unique_id": self.current_message_id,
         }
         self.id_to_message.append(message)
-        self._next_message_id += 1
-        return len(self.id_to_message) - 1
 
     def set_message_content(self, message_id: int, content: str) -> None:
         """
@@ -100,30 +97,20 @@ class ReactAgent:
         
         TODO(student): Implement this function to update a message's content
         """
-        if not (0 <= message_id < len(self.id_to_message)):
+        if not (0 <= message_id <= self.current_message_id):
             raise IndexError(f"Message id {message_id} is out of range.")
         self.id_to_message[message_id]["content"] = content
 
-    def get_context(self, window: int = 30, include_system: bool = True) -> str:
+    def get_context(self) -> str:
         """
         Build the full LLM context from the message list.
-        Uses a sliding window to avoid overlong prompts: always include the
-        initial system and user messages, then the latest `window` messages.
+        
+        TODO(student): Implement this function to build the context from the message list
         """
-        total = len(self.id_to_message)
-        if total <= 2:
-            indices = range(total)
-        else:
-            tail_start = max(2, total - window)
-            indices = [0, 1] + list(range(tail_start, total))
-
-        if not include_system:
-            indices = [idx for idx in indices if idx != self.system_message_id]
-
-        contexts: List[str] = []
-        for idx in indices:
-            contexts.append(self.message_id_to_context(idx))
-        return "\n".join(contexts)
+        context = ""
+        for i in range(self.current_message_id + 1):
+            context += self.message_id_to_context(i) + "\n"
+        return context
 
     # -------------------- REQUIRED TOOLS --------------------
     def add_functions(self, tools: List[Callable]):
@@ -175,17 +162,15 @@ class ReactAgent:
             raise ValueError("max_steps must be positive")
         max_steps = min(max_steps, 100)
 
-        self.set_message_content(self.user_message_id, task.strip())
+        self.set_message_content(self.user_message_id, task)
 
         finish_attempts = 0
 
         for step in range(max_steps):
-            system_context = self.message_id_to_context(self.system_message_id)
-            conversation_context = self.get_context(include_system=False)
             llm_messages = [
-                {"role": "system", "content": system_context},
-                {"role": "user", "content": conversation_context},
-            ]
+                {'role': self.id_to_message[i]['role'], 'content': self.message_id_to_context(i)}
+                for i in range(self.current_message_id + 1)
+            ] + {'role': 'system', 'content': self.message_id_to_context(self.system_message_id)}
             response = self.llm.generate(llm_messages)
             self.add_message("assistant", response)
 
@@ -209,7 +194,7 @@ class ReactAgent:
                 continue
             
             function_name = parsed["name"]
-            arguments = self._sanitize_arguments(parsed["arguments"])
+            arguments = parsed["arguments"]
             tool = self.function_map.get(function_name)
             if tool is None:
                 self.add_message(
@@ -217,21 +202,6 @@ class ReactAgent:
                     f"Tool '{function_name}' is not registered. "
                     f"Valid tools: {', '.join(self.function_map.keys())}. "
                     "Retry with a valid tool and arguments.",
-                )
-                continue
-
-            # Reject polluted arguments containing call markers for any tool
-            polluted = False
-            for val in arguments.values():
-                if not isinstance(val, str):
-                    continue
-                if any(marker in val for marker in (self.parser.BEGIN_CALL, self.parser.END_CALL, self.parser.ARG_SEP, self.parser.VALUE_SEP)):
-                    polluted = True
-                    break
-            if polluted:
-                self.add_message(
-                    "system",
-                    "Argument values contained function-call markers (BEGIN/END/ARG/VALUE). Regenerate a clean function call with unpolluted arguments.",
                 )
                 continue
 
@@ -254,7 +224,7 @@ class ReactAgent:
             # Record tool execution result
             tool_message_content = (
                 f"{function_name}(args={arguments})\n"
-                f"----RESULT----\n{tool_result}"
+                f"----TOOL RESULT BEGIN----\n{tool_result}\n----TOOL RESULT END----\n"
             )
             self.add_message("tool", tool_message_content)
 
@@ -275,39 +245,23 @@ class ReactAgent:
 
         raise LimitsExceeded(f"Reached {max_steps} steps without calling finish.")
 
-    def _sanitize_arguments(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Remove any leaked function-call markers from string arguments by truncating
-        at the first occurrence. This prevents commands like END_FUNCTION_CALL from
-        being passed to tools.
-        """
-        cleaned = {}
-        markers = (self.parser.BEGIN_CALL, self.parser.END_CALL, self.parser.ARG_SEP, self.parser.VALUE_SEP)
-        for k, v in arguments.items():
-            if isinstance(v, str):
-                for marker in markers:
-                    if marker in v:
-                        v = v.split(marker, 1)[0].rstrip()
-                        break
-            cleaned[k] = v
-        return cleaned
-
     def message_id_to_context(self, message_id: int) -> str:
         """
         Helper function to convert a message id to a context string.
         """
         message = self.id_to_message[message_id]
-        header = f'----------------------------\n|MESSAGE(role="{message["role"]}", id={message["unique_id"]})|\n'
+        header = f'--------\n|MESSAGE(role="{message["role"]}", id={message["unique_id"]})|'--------\\n'
         content = message["content"]
         if message["role"] == "tool":
             # Show full output when the tool just ran (latest message);
             # compress only for older tool messages in history.
             if message_id != len(self.id_to_message) - 1:
-                max_len = 2048
+                max_len = 4096
                 if len(content) > max_len:
-                    head = content[:1024]
-                    tail = content[-512:]
+                    head = content[:2048]
+                    tail = content[-2048:]
                     content = f"{head}\n... [TRUNCATED {len(content) - (len(head)+len(tail))} CHARS] ...\n{tail}"
+
         if message["role"] == "system":
             tool_descriptions = []
             for tool in self.function_map.values():
@@ -319,8 +273,8 @@ class ReactAgent:
             tool_descriptions = "\n".join(tool_descriptions)
             return (
                 f"{header}{content}\n"
-                f"--- AVAILABLE TOOLS ---\n{tool_descriptions}\n\n"
-                f"--- RESPONSE FORMAT ---\n{self.parser.response_format}\n"
+                f"--- AVAILABLE TOOLS ---\n{tool_descriptions}\n----AVAILABLE TOOLS END----\n"
+                f"--- RESPONSE FORMAT ---\n{self.parser.response_format}\n----RESPONSE FORMAT END----\n"
             )
         else:
             return f"{header}{content}\n"
