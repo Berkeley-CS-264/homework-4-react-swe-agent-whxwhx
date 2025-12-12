@@ -54,15 +54,11 @@ class OpenAIModel(LLM):
         if isinstance(messages, str):
             messages = [{"role": "user", "content": messages}]
         try:
-            stop_kwargs = {}
-            if self.stop_token:
-                stop_kwargs["stop"] = self.stop_token
-
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=messages,
+                temperature=1,
                 max_completion_tokens=4096,
-                **stop_kwargs,
             )
             
             text = response.choices[0].message.content
