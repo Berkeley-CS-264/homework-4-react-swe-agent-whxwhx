@@ -231,7 +231,7 @@ class ReactAgent:
             )
             self.add_message("user", tool_message_content)
 
-            if tool is self.finish:
+            if "finish" in function_name:
                 return tool_result  
 
         raise LimitsExceeded(f"Reached {max_steps} steps without calling finish.")
