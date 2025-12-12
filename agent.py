@@ -65,8 +65,7 @@ class ReactAgent:
             "\n"
             "FINISHING:\n"
             "- Only call finish when the task is complete.\n"
-            "- If the task requires code changes, generate the final patch by running: "
-            "`git add -A && git diff --cached` via run_bash_cmd, then in the next message, pass the resulting diff text as finish(result=...).\n"
+            "- When you complete, call finish(result=...) where you explain the change in a few sentences.\n"
             "- Never call finish with an empty result.\n"
         )
         self.system_message_id = self.add_message("system", system_prompt)
@@ -168,8 +167,6 @@ class ReactAgent:
 
         self.set_message_content(self.user_message_id, task.strip())
 
-        finish_attempts = 0
-
         for step in range(max_steps):
             system_context = self.message_id_to_context(self.system_message_id)
             conversation_context = self.get_context(include_system=False)
@@ -235,15 +232,6 @@ class ReactAgent:
             self.add_message("user", tool_message_content)
 
             if tool is self.finish:
-                finish_attempts += 1
-                print(f"finish_attempts: {finish_attempts} tool_result_len: {len(tool_result)}")
-                if not tool_result.strip():
-                    print("finish returned an empty result.")
-                    self.add_message(
-                        "system",
-                        "finish returned an empty result. Ensure you generated a patch (git add -A && git diff --cached) or explain why no changes are needed, then call finish again.",
-                    )
-                    continue
                 return tool_result  
 
         raise LimitsExceeded(f"Reached {max_steps} steps without calling finish.")
