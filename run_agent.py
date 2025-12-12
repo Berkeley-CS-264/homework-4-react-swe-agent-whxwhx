@@ -90,7 +90,7 @@ def main(
     print(f"Loading dataset {dataset_path}, split {split}...")
     instances = list(load_dataset(dataset_path, split=split))
     # limit to 1 instance for testing
-#    instances = instances[:1] #TODO: remove this
+    instances = instances[:1] #TODO: remove this
 
     print(f"Running on {len(instances)} instances...")
 
