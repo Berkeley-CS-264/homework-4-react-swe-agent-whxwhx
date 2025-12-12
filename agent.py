@@ -88,14 +88,21 @@ class ReactAgent:
             raise IndexError(f"Message id {message_id} is out of range.")
         self.id_to_message[message_id]["content"] = content
 
-    def get_context(self) -> str:
+    def get_context(self, window: int = 30) -> str:
         """
         Build the full LLM context from the message list.
-        
-        TODO(student): Implement this function to build the context from the message list
+        Uses a sliding window to avoid overlong prompts: always include the
+        initial system and user messages, then the latest `window` messages.
         """
+        total = len(self.id_to_message)
+        if total <= 2:
+            indices = range(total)
+        else:
+            tail_start = max(2, total - window)
+            indices = [0, 1] + list(range(tail_start, total))
+
         contexts: List[str] = []
-        for idx in range(len(self.id_to_message)):
+        for idx in indices:
             contexts.append(self.message_id_to_context(idx))
         return "\n".join(contexts)
 
@@ -237,6 +244,13 @@ class ReactAgent:
         message = self.id_to_message[message_id]
         header = f'----------------------------\n|MESSAGE(role="{message["role"]}", id={message["unique_id"]})|\n'
         content = message["content"]
+        if message["role"] == "tool":
+            # Avoid flooding the context with extremely long tool outputs
+            max_len = 2048
+            if len(content) > max_len:
+                head = content[:1024]
+                tail = content[-512:]
+                content = f"{head}\n... [TRUNCATED {len(content) - (len(head)+len(tail))} CHARS] ...\n{tail}"
         if message["role"] == "system":
             tool_descriptions = []
             for tool in self.function_map.values():
