@@ -104,7 +104,9 @@ def main(
                 instance_id = futures[future]
                 print(f"Error in future for instance {instance_id}: {e}")
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+    # Keep concurrency modest to avoid Docker startup/pull timeouts
+    worker_count = min(4, len(instances))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=worker_count) as executor:
         futures = {
             executor.submit(process_instance, instance, output_path, model_name, max_steps): instance[
                 "instance_id"
