@@ -42,6 +42,7 @@ def get_sb_environment(instance: dict) -> Environment:
 def update_preds_file(output_path: Path, instance_id: str, model_name: str, result: str):
     """Update the output JSON file with results from a single instance."""
     with _OUTPUT_FILE_LOCK:
+        print(f"Updating predictions file for instance {instance_id}")
         output_data = {}
         if output_path.exists():
             output_data = json.loads(output_path.read_text())
