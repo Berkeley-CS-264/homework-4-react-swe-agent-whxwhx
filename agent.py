@@ -11,13 +11,14 @@ This file intentionally omits core implementations and replaces them with
 clear specifications and TODOs.
 """
 
-from typing import List, Callable, Dict, Any
+from typing import List, Callable, Dict, Any, Optional
 import time
 
 from response_parser import ResponseParser
 from llm import LLM, OpenAIModel
 import inspect
 from envs import LimitsExceeded
+import re
 
 class ReactAgent:
     """
@@ -167,19 +168,31 @@ class ReactAgent:
 
         self.set_message_content(self.user_message_id, task.strip())
 
+        parse_failures = 0
+
         for step in range(max_steps):
-            system_context = self.message_id_to_context(self.system_message_id)
-            conversation_context = self.get_context(include_system=False)
-            llm_messages = [
-                {'role': self.id_to_message[i]['role'], 'content': self.message_id_to_context(i)}
-                for i in range(self.current_message_id + 1)
-            ] + [{'role': 'system', 'content': self.message_id_to_context(self.system_message_id)}]
+            # Build messages in a stable order: system first, then the rest of the conversation.
+            # NOTE: We do NOT use OpenAI's native tool-calling protocol here; the agent uses a
+            # textual function-call format parsed by ResponseParser. Therefore, when sending
+            # messages to OpenAI we must avoid role="tool" messages (they require a preceding
+            # assistant tool_call with tool_call_id). We keep internal role="tool" for clarity,
+            # but map it to "user" for the API call.
+            llm_messages = [{'role': 'system', 'content': self.message_id_to_context(self.system_message_id)}]
+            for i in range(self.current_message_id + 1):
+                if i == self.system_message_id:
+                    continue
+                role = self.id_to_message[i]['role']
+                if role == "tool":
+                    role = "user"
+                llm_messages.append({'role': role, 'content': self.message_id_to_context(i)})
+
             response = self.llm.generate(llm_messages)
             self.add_message("assistant", response)
 
             try:
                 parsed = self.parser.parse(response)
             except ValueError as parse_error:
+                parse_failures += 1
                 debug_msg = (
                     f"Failed to parse LLM response: {parse_error}\n"
                     f"----RAW_RESPONSE_START----\n{response}\n----RAW_RESPONSE_END----"
@@ -194,10 +207,15 @@ class ReactAgent:
                         f"{self.parser.response_format}"
                     ),
                 )
+                # Avoid infinite loops if the model keeps violating the protocol.
+                if parse_failures >= 5:
+                    raise LimitsExceeded("Too many parser failures; aborting.")
                 continue
+            else:
+                parse_failures = 0
             
             function_name = parsed["name"]
-            arguments = parsed["arguments"]
+            arguments = self._coerce_tool_arguments(function_name, parsed["arguments"])
             tool = self.function_map.get(function_name)
             if tool is None:
                 self.add_message(
@@ -224,17 +242,126 @@ class ReactAgent:
                 if not isinstance(tool_result, str):
                     tool_result = str(tool_result)
 
+            # Guardrail: do not allow modifying or adding tests (SWE-bench constraint).
+            # If the model did it anyway, revert those changes and tell the model.
+            self._enforce_no_test_changes()
+
             # Record tool execution result
             tool_message_content = (
                 f"{function_name}(args={arguments})\n"
                 f"----TOOL RESULT BEGIN----\n{tool_result}\n----TOOL RESULT END----\n"
             )
-            self.add_message("user", tool_message_content)
+            self.add_message("tool", tool_message_content)
 
-            if "finish" in function_name:
+            if function_name == "finish":
                 return tool_result  
 
         raise LimitsExceeded(f"Reached {max_steps} steps without calling finish.")
+
+    # -------------------- INTERNAL HELPERS --------------------
+    def _coerce_tool_arguments(self, function_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Coerce string arguments produced by ResponseParser into the tool's expected
+        Python types (e.g., from_line/to_line into int). This prevents common
+        tool failures like "'<' not supported between instances of 'str' and 'int'".
+        """
+        tool = self.function_map.get(function_name)
+        if tool is None:
+            return arguments
+
+        sig = inspect.signature(tool)
+        coerced: Dict[str, Any] = dict(arguments)
+        for name, param in sig.parameters.items():
+            if name not in coerced:
+                continue
+            value = coerced[name]
+            if value is None:
+                continue
+
+            # Most arguments arrive as strings from the parser.
+            ann = param.annotation
+
+            if ann is int and isinstance(value, str):
+                v = value.strip()
+                if re.fullmatch(r"[+-]?\d+", v):
+                    coerced[name] = int(v)
+            elif ann is float and isinstance(value, str):
+                v = value.strip()
+                try:
+                    coerced[name] = float(v)
+                except ValueError:
+                    pass
+            elif ann is bool and isinstance(value, str):
+                v = value.strip().lower()
+                if v in ("true", "1", "yes", "y"):
+                    coerced[name] = True
+                elif v in ("false", "0", "no", "n"):
+                    coerced[name] = False
+            # else: leave as-is (e.g., command/content are often multiline strings)
+
+        return coerced
+
+    def _enforce_no_test_changes(self) -> None:
+        """
+        SWE-bench evaluation forbids modifying/adding tests. Detect and revert any
+        changes under tests/ or files that look like tests (test_*.py, *_test.py).
+        """
+        run_bash = self.function_map.get("run_bash_cmd")
+        if run_bash is None:
+            return
+
+        try:
+            status = run_bash("git status --porcelain")
+        except Exception:
+            return
+
+        forbidden: List[str] = []
+        new_files: List[str] = []
+        for line in (status or "").splitlines():
+            if not line.strip():
+                continue
+            # Porcelain format: XY<space>path  OR  ??<space>path
+            path = line[3:].strip() if not line.startswith("??") else line[2:].strip()
+            if not path:
+                continue
+            is_test_path = (
+                path.startswith("tests/")
+                or path.startswith("test/")
+                or path.endswith("/tests.py")
+                or re.search(r"(^|/)(test_.*\.py|.*_test\.py)$", path) is not None
+            )
+            if not is_test_path:
+                continue
+            forbidden.append(path)
+            if line.startswith("??"):
+                new_files.append(path)
+
+        if not forbidden:
+            return
+
+        # Revert modifications to tracked test files.
+        tracked = [p for p in forbidden if p not in new_files]
+        for p in tracked:
+            try:
+                run_bash(f"git checkout -- {p}")
+            except Exception:
+                pass
+
+        # Remove newly created test files.
+        for p in new_files:
+            try:
+                run_bash(f"rm -f {p}")
+            except Exception:
+                pass
+
+        self.add_message(
+            "system",
+            (
+                "DO NOT CHANGE ANY TESTS. I detected modifications/additions to test files and "
+                f"reverted/removed them: {', '.join(forbidden)}. "
+                "Re-implement the fix without touching tests."
+            ),
+        )
 
     def message_id_to_context(self, message_id: int) -> str:
         """
