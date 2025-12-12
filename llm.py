@@ -56,7 +56,7 @@ class OpenAIModel(LLM):
                 model=self.model_name,
                 messages=messages,
                 temperature=0.2,
-                max_tokens=4096,
+                max_completion_tokens=4096,
                 stop=[self.stop_token],
             )
             
