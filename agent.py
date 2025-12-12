@@ -90,6 +90,7 @@ class ReactAgent:
             "unique_id": self.current_message_id,
         }
         self.id_to_message.append(message)
+        return self.current_message_id
 
     def set_message_content(self, message_id: int, content: str) -> None:
         """
@@ -101,7 +102,7 @@ class ReactAgent:
             raise IndexError(f"Message id {message_id} is out of range.")
         self.id_to_message[message_id]["content"] = content
 
-    def get_context(self) -> str:
+    def get_context(self, include_system: bool = True) -> str:
         """
         Build the full LLM context from the message list.
         
@@ -109,6 +110,8 @@ class ReactAgent:
         """
         context = ""
         for i in range(self.current_message_id + 1):
+            if not include_system and i == self.system_message_id:
+                continue
             context += self.message_id_to_context(i) + "\n"
         return context
 
@@ -162,15 +165,17 @@ class ReactAgent:
             raise ValueError("max_steps must be positive")
         max_steps = min(max_steps, 100)
 
-        self.set_message_content(self.user_message_id, task)
+        self.set_message_content(self.user_message_id, task.strip())
 
         finish_attempts = 0
 
         for step in range(max_steps):
+            system_context = self.message_id_to_context(self.system_message_id)
+            conversation_context = self.get_context(include_system=False)
             llm_messages = [
                 {'role': self.id_to_message[i]['role'], 'content': self.message_id_to_context(i)}
                 for i in range(self.current_message_id + 1)
-            ] + {'role': 'system', 'content': self.message_id_to_context(self.system_message_id)}
+            ] + [{'role': 'system', 'content': self.message_id_to_context(self.system_message_id)}]
             response = self.llm.generate(llm_messages)
             self.add_message("assistant", response)
 
