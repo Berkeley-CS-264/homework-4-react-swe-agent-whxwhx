@@ -250,7 +250,10 @@ class ReactAgent:
         Helper function to convert a message id to a context string.
         """
         message = self.id_to_message[message_id]
-        header = f'--------\n|MESSAGE(role="{message["role"]}", id={message["unique_id"]})|'--------\\n'
+        header = (
+            f'----------------------------\n'
+            f'|MESSAGE(role="{message["role"]}", id={message["unique_id"]})|\n'
+        )
         content = message["content"]
         if message["role"] == "tool":
             # Show full output when the tool just ran (latest message);
