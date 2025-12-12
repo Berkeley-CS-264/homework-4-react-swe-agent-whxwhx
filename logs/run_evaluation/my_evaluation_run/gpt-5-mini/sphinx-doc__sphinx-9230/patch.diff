@@ -1,0 +1,19 @@
+diff --git a/sphinx/ext/napoleon/docstring.py b/sphinx/ext/napoleon/docstring.py
+index d8cb75a5f..0743f9b64 100644
+--- a/sphinx/ext/napoleon/docstring.py
++++ b/sphinx/ext/napoleon/docstring.py
+@@ -264,7 +264,13 @@ class GoogleDocstring:
+         _name, _type, _desc = before, '', after
+ 
+         if parse_type:
+-            match = _google_typed_arg_regex.match(before)
++            # Only treat the "name(type)" form as a typed argument when the
++            # entire "before" part matches that pattern. Using match() here
++            # allowed prefixes like "dict(str, str) opc_meta" to be treated
++            # as a name with a type, which is incorrect. Require a full
++            # match to avoid mis-parsing types that themselves contain
++            # parentheses.
++            match = _google_typed_arg_regex.fullmatch(before)
+             if match:
+                 _name = match.group(1).strip()
+                 _type = match.group(2)

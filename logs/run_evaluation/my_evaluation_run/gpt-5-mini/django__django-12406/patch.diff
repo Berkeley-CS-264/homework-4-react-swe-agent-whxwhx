@@ -1,0 +1,25 @@
+diff --git a/django/forms/widgets.py b/django/forms/widgets.py
+index 40ac1d3162..998a4db790 100644
+--- a/django/forms/widgets.py
++++ b/django/forms/widgets.py
+@@ -759,6 +759,20 @@ class RadioSelect(ChoiceWidget):
+     template_name = 'django/forms/widgets/radio.html'
+     option_template_name = 'django/forms/widgets/radio_option.html'
+ 
++    def format_value(self, value):
++        """
++        For radio widgets, don't pre-select the empty option when the widget
++        is required. ChoiceWidget.format_value turns a None value into
++        [''], which causes an empty ("") choice to be selected. For radios,
++        that results in the blank choice being rendered as checked for new
++        required model form fields (blank=False). Select widgets intentionally
++        keep that behaviour, so we only change it for RadioSelect.
++        """
++        if value is None and not self.allow_multiple_selected and self.is_required:
++            return []
++        return super().format_value(value)
++
++
+ 
+ class CheckboxSelectMultiple(ChoiceWidget):
+     allow_multiple_selected = True

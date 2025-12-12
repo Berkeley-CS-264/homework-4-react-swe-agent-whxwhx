@@ -1,0 +1,47 @@
+diff --git a/django/contrib/staticfiles/storage.py b/django/contrib/staticfiles/storage.py
+index 494890cc23..85b353c5f2 100644
+--- a/django/contrib/staticfiles/storage.py
++++ b/django/contrib/staticfiles/storage.py
+@@ -228,15 +228,29 @@ class HashedFilesMixin:
+         ]
+         # Do a single pass first. Post-process all files once, then repeat for
+         # adjustable files.
++        # We collect results per original name across passes and yield each
++        # original filename only once with its final hashed name. Error yields
++        # from _post_process (where hashed_name is None and processed is an
++        # Exception) are yielded immediately so callers can react to problems.
++        results = {}
+         for name, hashed_name, processed, _ in self._post_process(paths, adjustable_paths, hashed_files):
+-            yield name, hashed_name, processed
++            # If an exception was yielded, pass it through immediately.
++            if isinstance(hashed_name, Exception) or (hashed_name is None and isinstance(processed, Exception)):
++                yield name, hashed_name, processed
++                continue
++            # Store the most recent result for this original name.
++            results[name] = (hashed_name, processed)
+ 
+         paths = {path: paths[path] for path in adjustable_paths}
+ 
+         for i in range(self.max_post_process_passes):
+             substitutions = False
+             for name, hashed_name, processed, subst in self._post_process(paths, adjustable_paths, hashed_files):
+-                yield name, hashed_name, processed
++                # If an exception was yielded, pass it through immediately.
++                if isinstance(hashed_name, Exception) or (hashed_name is None and isinstance(processed, Exception)):
++                    yield name, hashed_name, processed
++                    continue
++                results[name] = (hashed_name, processed)
+                 substitutions = substitutions or subst
+ 
+             if not substitutions:
+@@ -245,6 +259,10 @@ class HashedFilesMixin:
+         if substitutions:
+             yield 'All', None, RuntimeError('Max post-process passes exceeded.')
+ 
++        # Now yield each original filename once with its final hashed name.
++        for name, (hashed_name, processed) in results.items():
++            yield name, hashed_name, processed
++
+         # Store the processed paths
+         self.hashed_files.update(hashed_files)
+ 

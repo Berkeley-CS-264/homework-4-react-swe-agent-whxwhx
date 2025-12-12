@@ -1,0 +1,43 @@
+diff --git a/sphinx/util/typing.py b/sphinx/util/typing.py
+index 87707d48f..0cbf2c95e 100644
+--- a/sphinx/util/typing.py
++++ b/sphinx/util/typing.py
+@@ -192,10 +192,28 @@ def _restify_py37(cls: Optional[Type]) -> str:
+     elif isinstance(cls, typing._SpecialForm):
+         return ':py:obj:`~%s.%s`' % (cls.__module__, cls._name)
+     elif hasattr(cls, '__qualname__'):
+-        if cls.__module__ == 'typing':
+-            return ':py:class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
++        # Some mocked or proxy objects may have an empty __qualname__.
++        # Fall back to __name__ or __display_name__ to avoid producing
++        # references like "module." (trailing dot).  See issue with mocked
++        # base classes producing "Bases: torch.nn." instead of
++        # "torch.nn.Module".
++        qual = getattr(cls, '__qualname__', None) or getattr(cls, '__name__', None)
++        if not qual:
++            qual = getattr(cls, '__display_name__', None)
++        # If qual includes a redundant module prefix (e.g. 'pkg.mod.Class')
++        # and it matches cls.__module__, strip it to avoid 'pkg.mod.pkg.mod.Class'.
++        if isinstance(qual, str) and getattr(cls, '__module__', None):
++            mod_prefix = cls.__module__ + '.'
++            if qual.startswith(mod_prefix):
++                qual = qual[len(mod_prefix):]
++        if qual:
++            if cls.__module__ == 'typing':
++                return ':py:class:`~%s.%s`' % (cls.__module__, qual)
++            else:
++                return ':py:class:`%s.%s`' % (cls.__module__, qual)
+         else:
+-            return ':py:class:`%s.%s`' % (cls.__module__, cls.__qualname__)
++            # Last resort: repr()
++            return repr(cls)
+     elif isinstance(cls, ForwardRef):
+         return ':py:class:`%s`' % cls.__forward_arg__
+     else:
+@@ -467,4 +485,4 @@ deprecated_alias('sphinx.util.typing',
+                  {
+                      'DirectiveOption': Callable[[str], Any],
+                  },
+-                 RemovedInSphinx60Warning)
++                 RemovedInSphinx60Warning)
+\ No newline at end of file

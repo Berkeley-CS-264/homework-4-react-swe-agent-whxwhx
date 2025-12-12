@@ -1,0 +1,52 @@
+diff --git a/sympy/geometry/point.py b/sympy/geometry/point.py
+index 7c978c47be..617877048a 100644
+--- a/sympy/geometry/point.py
++++ b/sympy/geometry/point.py
+@@ -213,10 +213,28 @@ def __add__(self, other):
+         sympy.geometry.point.Point.translate
+ 
+         """
+-        try:
+-            s, o = Point._normalize_dimension(self, Point(other, evaluate=False))
+-        except TypeError:
+-            raise GeometryError("Don't know how to add {} and a Point object".format(other))
++        # allow adding expressions like scalar * Point (which produce a Mul)
++        from sympy.core.mul import Mul
++        if isinstance(other, Mul):
++            # find a Point among the multiplicative factors
++            point_factor = None
++            for a in other.args:
++                if isinstance(a, Point):
++                    point_factor = a
++                    break
++            if point_factor is not None:
++                # reconstruct the scalar as the product of the other factors
++                scalar = Mul(*[arg for arg in other.args if arg is not point_factor])
++                scaled = point_factor * scalar
++                try:
++                    s, o = Point._normalize_dimension(self, Point(scaled, evaluate=False))
++                except TypeError:
++                    raise GeometryError("Don't know how to add {} and a Point object".format(other))
++        else:
++            try:
++                s, o = Point._normalize_dimension(self, Point(other, evaluate=False))
++            except TypeError:
++                raise GeometryError("Don't know how to add {} and a Point object".format(other))
+ 
+         coords = [simplify(a + b) for a, b in zip(s, o)]
+         return Point(coords, evaluate=False)
+@@ -278,6 +296,14 @@ def __mul__(self, factor):
+         coords = [simplify(x*factor) for x in self.args]
+         return Point(coords, evaluate=False)
+ 
++    def __rmul__(self, factor):
++        """Right multiplication so that scalar * Point works.
++
++        Delegates to __mul__ after letting __mul__ handle sympification
++        and simplification of coordinates.
++        """
++        return self.__mul__(factor)
++
+     def __neg__(self):
+         """Negate the point."""
+         coords = [-x for x in self.args]

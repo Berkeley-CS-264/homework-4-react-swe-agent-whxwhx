@@ -1,0 +1,102 @@
+diff --git a/sphinx/domains/cpp.py b/sphinx/domains/cpp.py
+index fe52d881d..893c9283d 100644
+--- a/sphinx/domains/cpp.py
++++ b/sphinx/domains/cpp.py
+@@ -838,6 +838,43 @@ class ASTNumberLiteral(ASTLiteral):
+         signode.append(nodes.Text(txt, txt))
+ 
+ 
++class ASTUserDefinedLiteral(ASTLiteral):
++    """
++    Represents a user-defined literal like 42_km or "s"_lit.
++    Holds the underlying literal node and the identifier suffix.
++    """
++    def __init__(self, literal: ASTLiteral, suffix: "ASTIdentifier") -> None:
++        self.literal = literal
++        self.suffix = suffix
++
++    def _stringify(self, transform: 'StringifyTransform') -> str:
++        return transform(self.literal) + transform(self.suffix)
++
++    def get_id(self, version: int) -> str:
++        # For id generation, try to combine literal id and suffix.
++        try:
++            lit_id = self.literal.get_id(version)
++        except Exception:
++            lit_id = str(self.literal)
++        # For version >=3 return readable form, for older versions append suffix name.
++        if version >= 3:
++            return str(self)
++        else:
++            # If literal id looks like L...E try to strip L and E
++            if isinstance(lit_id, str) and lit_id.startswith('L') and lit_id.endswith('E'):
++                core = lit_id[1:-1]
++            else:
++                core = lit_id
++            suffix_name = getattr(self.suffix, 'name', str(self.suffix))
++            return "L%s%sE" % (core, suffix_name)
++
++    def describe_signature(self, signode: 'TextElement', mode: str,
++                           env: "BuildEnvironment", symbol: "Symbol") -> None:
++        txt = str(self)
++        signode.append(nodes.Text(txt, txt))
++
++
++
+ class ASTStringLiteral(ASTLiteral):
+     def __init__(self, data: str) -> None:
+         self.data = data
+@@ -4662,27 +4699,42 @@ class DefinitionParser(BaseParser):
+                       integer_literal_re, octal_literal_re]:
+             pos = self.pos
+             if self.match(regex):
++                # consume builtin suffix letters like u, l, f, etc.
+                 while self.current_char in 'uUlLfF':
+                     self.pos += 1
+-                return ASTNumberLiteral(self.definition[pos:self.pos])
++                lit = ASTNumberLiteral(self.definition[pos:self.pos])
++                # user-defined literal: must be immediately following (no space)
++                if self.match(identifier_re):
++                    ident = ASTIdentifier(self.matched_text)
++                    return ASTUserDefinedLiteral(lit, ident)
++                return lit
+ 
+         string = self._parse_string()
+         if string is not None:
+-            return ASTStringLiteral(string)
++            lit = ASTStringLiteral(string)
++            # user-defined literal: identifier immediately following string literal
++            if self.match(identifier_re):
++                ident = ASTIdentifier(self.matched_text)
++                return ASTUserDefinedLiteral(lit, ident)
++            return lit
+ 
+         # character-literal
+         if self.match(char_literal_re):
+             prefix = self.last_match.group(1)  # may be None when no prefix
+             data = self.last_match.group(2)
+             try:
+-                return ASTCharLiteral(prefix, data)
++                lit = ASTCharLiteral(prefix, data)
++                # user-defined literal: identifier immediately following char literal
++                if self.match(identifier_re):
++                    ident = ASTIdentifier(self.matched_text)
++                    return ASTUserDefinedLiteral(lit, ident)
++                return lit
+             except UnicodeDecodeError as e:
+                 self.fail("Can not handle character literal. Internal error was: %s" % e)
+             except UnsupportedMultiCharacterCharLiteral:
+                 self.fail("Can not handle character literal"
+                           " resulting in multiple decoded characters.")
+ 
+-        # TODO: user-defined lit
+         return None
+ 
+     def _parse_fold_or_paren_expression(self) -> ASTExpression:
+@@ -7285,4 +7337,4 @@ def setup(app: Sphinx) -> Dict[str, Any]:
+         'env_version': 2,
+         'parallel_read_safe': True,
+         'parallel_write_safe': True,
+-    }
++    }
+\ No newline at end of file

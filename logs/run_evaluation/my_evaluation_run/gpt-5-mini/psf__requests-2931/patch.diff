@@ -1,0 +1,26 @@
+diff --git a/requests/models.py b/requests/models.py
+index 9c624d3..c3a5927 100644
+--- a/requests/models.py
++++ b/requests/models.py
+@@ -80,8 +80,12 @@ class RequestEncodingMixin(object):
+         if parameters are supplied as a dict.
+         """
+ 
+-        if isinstance(data, (str, bytes)):
++        # If it's a text string, convert to a native string. If it's bytes,
++        # return it unchanged so binary payloads are preserved.
++        if isinstance(data, str):
+             return to_native_string(data)
++        elif isinstance(data, bytes):
++            return data
+         elif hasattr(data, 'read'):
+             return data
+         elif hasattr(data, '__iter__'):
+@@ -98,6 +102,7 @@ class RequestEncodingMixin(object):
+         else:
+             return data
+ 
++
+     @staticmethod
+     def _encode_files(files, data):
+         """Build the body for a multipart/form-data request.

@@ -1,0 +1,27 @@
+diff --git a/sklearn/compose/_column_transformer.py b/sklearn/compose/_column_transformer.py
+index 4eddd12b1..273f8a76c 100644
+--- a/sklearn/compose/_column_transformer.py
++++ b/sklearn/compose/_column_transformer.py
+@@ -303,6 +303,22 @@ class ColumnTransformer(TransformerMixin, _BaseComposition):
+         for trans in transformers:
+             _safe_set_output(trans, transform=transform)
+ 
++        # Also ensure that the remainder estimator (if provided as an
++        # estimator in the constructor) has its output configured. When
++        # fitted, transformers_ already contains a ('remainder', estimator, ...)
++        # tuple and was handled above; but for the unfitted state the
++        # constructor's self.remainder may be an estimator as well.
++        remainder_param = getattr(self, "remainder", None)
++        if remainder_param not in (None, "passthrough", "drop"):
++            _safe_set_output(remainder_param, transform=transform)
++
++        # If _remainder exists (set during validation/fitting), ensure we also
++        # configure the fitted remainder estimator stored there.
++        if getattr(self, "_remainder", None):
++            rem_trans = self._remainder[1]
++            if rem_trans not in ("passthrough", "drop"):
++                _safe_set_output(rem_trans, transform=transform)
++
+         return self
+ 
+     def get_params(self, deep=True):
