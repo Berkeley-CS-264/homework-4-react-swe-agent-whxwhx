@@ -61,11 +61,15 @@ DO NOT CHANGE ANY TEST! AS THEY WILL BE USED FOR EVALUATION.
         call_block = text[begin_idx + len(self.BEGIN_CALL):end_idx].strip()
         if not call_block:
             raise ValueError("Empty function call block.")
+        else:
+            print(f"Call block: {call_block}")
 
         sections = call_block.split(self.ARG_SEP)
         function_name = sections[0].strip()
         if not function_name:
             raise ValueError("Function name is missing.")
+        else:
+            print(f"Function name: {function_name}")
 
         arguments = {}
         for section in sections[1:]:
@@ -79,5 +83,7 @@ DO NOT CHANGE ANY TEST! AS THEY WILL BE USED FOR EVALUATION.
                 raise ValueError("Argument name is empty.")
             arg_value = value_part.strip()
             arguments[arg_name] = arg_value
+            print(f"Argument: {arg_name} = {arg_value}")
 
+        print("--------------------------------")
         return {"thought": thought, "name": function_name, "arguments": arguments}
