@@ -231,7 +231,7 @@ class ReactAgent:
                 f"{function_name}(args={arguments})\n"
                 f"----TOOL RESULT BEGIN----\n{tool_result}\n----TOOL RESULT END----\n"
             )
-            self.add_message("tool", tool_message_content)
+            self.add_message("user", tool_message_content)
 
             if tool is self.finish:
                 finish_attempts += 1
