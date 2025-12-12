@@ -61,6 +61,7 @@ class ReactAgent:
             "HOW TO WORK:\n"
             "- Prefer small, verifiable steps. When unsure, inspect the repo using run_bash_cmd.\n"
             "- If a tool fails, read the error and retry with corrected arguments.\n"
+            "- Before you finish, run a simple test to verify the changes you made.\n"
             "\n"
             "FINISHING:\n"
             "- Only call finish when the task is complete.\n"
