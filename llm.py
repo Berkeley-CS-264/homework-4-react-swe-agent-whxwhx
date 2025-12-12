@@ -49,12 +49,15 @@ class OpenAIModel(LLM):
         Returns:
             The text response from the model including the stop token
         """
+        if isinstance(messages, str):
+            messages = [{"role": "user", "content": messages}]
         try:
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=messages,
-                temperature=1,
-                max_completion_tokens=4096,
+                temperature=0.2,
+                max_tokens=4096,
+                stop=[self.stop_token],
             )
             
             text = response.choices[0].message.content

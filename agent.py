@@ -178,12 +178,16 @@ class ReactAgent:
             arguments = parsed["arguments"]
             tool = self.function_map.get(function_name)
             if tool is None:
-                raise ValueError(f"Tool '{function_name}' is not registered.")
+                self.add_message(
+                    "system",
+                    f"Tool '{function_name}' is not registered. "
+                    f"Valid tools: {', '.join(self.function_map.keys())}. "
+                    "Retry with a valid tool and arguments.",
+                )
+                continue
 
             try:
                 tool_result = tool(**arguments)
-            except TypeError as e:
-                raise ValueError(f"Error calling tool '{function_name}': {e}") from e
             except Exception as e:
                 tool_result = f"{type(e).__name__}: {e}"
             else:

@@ -50,10 +50,7 @@ def process_instance(
         agent = ReactAgent("swe-agent", parser, llm)
         
         # Add environment functions to the agent
-        agent.add_functions([env.run_bash_cmd])
-        
-        # TODO(student): Add more functions here if needed
-        # agent.add_functions([env.replace_in_file, env.show_file, ...])
+        agent.add_functions([env.run_bash_cmd, env.replace_in_file, env.show_file])
         
         # Run the agent
         output = agent.run(task, max_steps) 
