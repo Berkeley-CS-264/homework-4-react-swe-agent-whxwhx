@@ -7,7 +7,7 @@ class ResponseParser:
     """
 
     BEGIN_CALL = "----BEGIN_FUNCTION_CALL----"
-    END_CALL = "----END_FUNCTION_CALL----"
+    END_CALL = "----END_FUNCTION_CALL"
     ARG_SEP = "----ARG----"
     VALUE_SEP = "----VALUE----"
 
