@@ -47,13 +47,28 @@ class ReactAgent:
         # Set up the initial structure of the history
         # Create required root nodes and a user node (task)
         system_prompt = (
-            "You are a careful ReAct agent. Think step-by-step, stay concise, and only one tool call per reply.\n"
-            "- Always end with exactly one function call using the provided format.\n"
+            "You are a careful ReAct agent. Think step-by-step, stay concise, and ALWAYS end with EXACTLY ONE function call.\n"
+            "RESPONSE FORMAT (must always appear at end):\n"
+            "your_thoughts_here\n"
+            "...\n"
+            "----BEGIN_FUNCTION_CALL----\n"
+            "function_name\n"
+            "----ARG----\n"
+            "arg1_name\n"
+            "----VALUE----\n"
+            "arg1_value\n"
+            "----ARG----\n"
+            "arg2_name\n"
+            "----VALUE----\n"
+            "arg2_value\n"
+            "...\n"
+            "----END_FUNCTION_CALL----\n"
+            "Rules: exactly one function call; every argument must have both ARG and VALUE blocks; never omit END marker.\n"
             "- Valid tools: finish(result: str) and registered run_* tools (e.g., run_bash_cmd).\n"
             "- Shell commands must be clean: DO NOT include BEGIN/END_FUNCTION_CALL or ARG/VALUE markers; keep them minimal.\n"
-            "- After an error, fix the command/inputs and retry rather than repeating the same failure.\n"
+            "- After an error, fix inputs and retry rather than repeating the same failure.\n"
             "- Finish only once, and only after ensuring a meaningful result (prefer a small relevant test when code changed).\n"
-            "- Be brief in reasoning; no long summaries of tool output (context is truncated)."
+            "- Be brief in reasoning; do not dump tool output (context is truncated)."
         )
         self.system_message_id = self.add_message("system", system_prompt)
         self.user_message_id = self.add_message("user", "")
@@ -180,7 +195,8 @@ class ReactAgent:
                     (
                         f"ParserError: {parse_error}. "
                         "You must ALWAYS end with a valid function call including function name and arguments, "
-                        "following the specified template."
+                        "following the specified template. Respond again using this exact format:\n"
+                        f"{self.parser.response_format}"
                     ),
                 )
                 continue
