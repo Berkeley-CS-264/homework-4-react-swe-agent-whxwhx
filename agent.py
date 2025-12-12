@@ -47,12 +47,13 @@ class ReactAgent:
         # Set up the initial structure of the history
         # Create required root nodes and a user node (task)
         system_prompt = (
-            "You are a Smart ReAct agent. Always think step-by-step before invoking a tool.\n"
-            "You MUST end every reply with exactly one function call using the provided format.\n"
-            "Valid tools: finish(result: str) for final answers, and any other registered run_* tools.\n"
-            "Never invent tool names. Call run_bash_cmd(command: str) to execute shell commands.\n"
-            "Do NOT include BEGIN/END_FUNCTION_CALL markers inside shell commands.\n"
-            "If you cannot proceed, call finish with an explanation. Prefer running a small relevant test before finish when code changed."
+            "You are a careful ReAct agent. Think step-by-step, stay concise, and only one tool call per reply.\n"
+            "- Always end with exactly one function call using the provided format.\n"
+            "- Valid tools: finish(result: str) and registered run_* tools (e.g., run_bash_cmd).\n"
+            "- Shell commands must be clean: DO NOT include BEGIN/END_FUNCTION_CALL or ARG/VALUE markers; keep them minimal.\n"
+            "- After an error, fix the command/inputs and retry rather than repeating the same failure.\n"
+            "- Finish only once, and only after ensuring a meaningful result (prefer a small relevant test when code changed).\n"
+            "- Be brief in reasoning; no long summaries of tool output (context is truncated)."
         )
         self.system_message_id = self.add_message("system", system_prompt)
         self.user_message_id = self.add_message("user", "")
@@ -245,12 +246,14 @@ class ReactAgent:
         header = f'----------------------------\n|MESSAGE(role="{message["role"]}", id={message["unique_id"]})|\n'
         content = message["content"]
         if message["role"] == "tool":
-            # Avoid flooding the context with extremely long tool outputs
-            max_len = 2048
-            if len(content) > max_len:
-                head = content[:1024]
-                tail = content[-512:]
-                content = f"{head}\n... [TRUNCATED {len(content) - (len(head)+len(tail))} CHARS] ...\n{tail}"
+            # Show full output when the tool just ran (latest message);
+            # compress only for older tool messages in history.
+            if message_id != len(self.id_to_message) - 1:
+                max_len = 2048
+                if len(content) > max_len:
+                    head = content[:1024]
+                    tail = content[-512:]
+                    content = f"{head}\n... [TRUNCATED {len(content) - (len(head)+len(tail))} CHARS] ...\n{tail}"
         if message["role"] == "system":
             tool_descriptions = []
             for tool in self.function_map.values():
