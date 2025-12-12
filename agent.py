@@ -64,7 +64,7 @@ class ReactAgent:
             "...\n"
             "----END_FUNCTION_CALL----\n"
             "Rules: exactly one function call; exactly one END marker (do not repeat it); every argument must have both ARG and VALUE blocks; arguments MUST NOT contain BEGIN/END/ARG/VALUE markers; NEVER emit an empty function-call block—if you truly have nothing to do, call finish with an explanation.\n"
-            "- Valid tools: finish(result: str) and registered run_* tools (e.g., run_bash_cmd).\n"
+            "- Valid tools: finish(result: str) and all registered tools listed below.\n"
             "- Shell commands must be clean: DO NOT include BEGIN/END_FUNCTION_CALL or ARG/VALUE markers; keep them minimal.\n"
             "- After an error, fix inputs and retry rather than repeating the same failure.\n"
             "- Finish only once, and only after ensuring a meaningful result (prefer a small relevant test when code changed).\n"
@@ -104,7 +104,7 @@ class ReactAgent:
             raise IndexError(f"Message id {message_id} is out of range.")
         self.id_to_message[message_id]["content"] = content
 
-    def get_context(self, window: int = 30) -> str:
+    def get_context(self, window: int = 30, include_system: bool = True) -> str:
         """
         Build the full LLM context from the message list.
         Uses a sliding window to avoid overlong prompts: always include the
@@ -116,6 +116,9 @@ class ReactAgent:
         else:
             tail_start = max(2, total - window)
             indices = [0, 1] + list(range(tail_start, total))
+
+        if not include_system:
+            indices = [idx for idx in indices if idx != self.system_message_id]
 
         contexts: List[str] = []
         for idx in indices:
@@ -177,8 +180,12 @@ class ReactAgent:
         finish_attempts = 0
 
         for step in range(max_steps):
-            context = self.get_context()
-            llm_messages = [{"role": "user", "content": context}]
+            system_context = self.message_id_to_context(self.system_message_id)
+            conversation_context = self.get_context(include_system=False)
+            llm_messages = [
+                {"role": "system", "content": system_context},
+                {"role": "user", "content": conversation_context},
+            ]
             response = self.llm.generate(llm_messages)
             self.add_message("assistant", response)
 
@@ -232,6 +239,14 @@ class ReactAgent:
                 tool_result = tool(**arguments)
             except Exception as e:
                 tool_result = f"{type(e).__name__}: {e}"
+                signature = inspect.signature(tool)
+                self.add_message(
+                    "system",
+                    (
+                        f"Tool '{function_name}{signature}' failed: {type(e).__name__}: {e}. "
+                        "Retry with corrected arguments that match the signature."
+                    ),
+                )
             else:
                 if not isinstance(tool_result, str):
                     tool_result = str(tool_result)
@@ -312,7 +327,7 @@ class ReactAgent:
 
 def main():
     from envs import DumbEnvironment
-    llm = OpenAIModel("----END_FUNCTION_CALL----", "gpt-4o-mini")
+    llm = OpenAIModel(None, "gpt-4o-mini")
     parser = ResponseParser()
 
     env = DumbEnvironment()

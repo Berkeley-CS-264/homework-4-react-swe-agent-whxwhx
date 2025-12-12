@@ -4,6 +4,7 @@ import os
 import json
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 
 class LLM(ABC):
@@ -24,10 +25,11 @@ class OpenAIModel(LLM):
 
     TODO(student): Implement this class to call your chosen backend (e.g., OpenAI GPT-5 mini)
     and return the model's text output. You should ensure the model produces the response
-    format required by ResponseParser and include the stop token in the output string.
+    format required by ResponseParser; if a stop token is provided it will be re-appended
+    to the returned text so downstream parsers can still see it.
     """
 
-    def __init__(self, stop_token: str, model_name: str = "gpt-5-mini", log_dir: Path = None):
+    def __init__(self, stop_token: Optional[str], model_name: str = "gpt-5-mini", log_dir: Path = None):
         # Initialize OpenAI client
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
@@ -47,21 +49,30 @@ class OpenAIModel(LLM):
             messages: List of message dictionaries with "role" and "content" keys
             
         Returns:
-            The text response from the model including the stop token
+            The text response from the model; if a stop token is configured it is appended.
         """
         if isinstance(messages, str):
             messages = [{"role": "user", "content": messages}]
         try:
+            stop_kwargs = {}
+            if self.stop_token:
+                stop_kwargs["stop"] = self.stop_token
+
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=messages,
                 max_completion_tokens=4096,
+                **stop_kwargs,
             )
             
             text = response.choices[0].message.content
+            if text is None:
+                text = ""
 
-            # split from the first stop token (including the stop token)
-            text = text.split(self.stop_token)[0].strip() + "\n" + self.stop_token
+            if self.stop_token:
+                # Preserve content before the stop token and re-append it so the caller
+                # can still see the intended marker.
+                text = text.split(self.stop_token)[0].strip() + "\n" + self.stop_token
             
             # Log the LLM call if log_dir is set
             if self.log_dir:
