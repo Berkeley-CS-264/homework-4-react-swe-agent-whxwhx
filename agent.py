@@ -171,13 +171,8 @@ class ReactAgent:
         parse_failures = 0
 
         for step in range(max_steps):
-            # Build messages in a stable order: system first, then the rest of the conversation.
-            # NOTE: We do NOT use OpenAI's native tool-calling protocol here; the agent uses a
-            # textual function-call format parsed by ResponseParser. Therefore, when sending
-            # messages to OpenAI we must avoid role="tool" messages (they require a preceding
-            # assistant tool_call with tool_call_id). We keep internal role="tool" for clarity,
-            # but map it to "user" for the API call.
-            llm_messages = [{'role': 'system', 'content': self.message_id_to_context(self.system_message_id)}]
+            system_msg = {'role': 'system', 'content': self.message_id_to_context(self.system_message_id)}
+            llm_messages = [system_msg]
             for i in range(self.current_message_id + 1):
                 if i == self.system_message_id:
                     continue
@@ -185,6 +180,7 @@ class ReactAgent:
                 if role == "tool":
                     role = "user"
                 llm_messages.append({'role': role, 'content': self.message_id_to_context(i)})
+            llm_messages.append(system_msg)
 
             response = self.llm.generate(llm_messages)
             self.add_message("assistant", response)
@@ -207,9 +203,6 @@ class ReactAgent:
                         f"{self.parser.response_format}"
                     ),
                 )
-                # Avoid infinite loops if the model keeps violating the protocol.
-                if parse_failures >= 5:
-                    raise LimitsExceeded("Too many parser failures; aborting.")
                 continue
             else:
                 parse_failures = 0
