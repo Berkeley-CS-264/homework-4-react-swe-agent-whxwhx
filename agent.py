@@ -180,7 +180,6 @@ class ReactAgent:
                 if role == "tool":
                     role = "user"
                 llm_messages.append({'role': role, 'content': self.message_id_to_context(i)})
-            llm_messages.append(system_msg)
 
             response = self.llm.generate(llm_messages)
             self.add_message("assistant", response)
