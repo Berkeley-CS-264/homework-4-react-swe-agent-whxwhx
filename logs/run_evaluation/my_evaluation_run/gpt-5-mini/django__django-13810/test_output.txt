@@ -366,7 +366,7 @@ test_view_exception_handled_by_process_exception (middleware_exceptions.tests.Mi
 test_missing_root_urlconf (middleware_exceptions.tests.RootUrlconfTests) ... ok
 
 ----------------------------------------------------------------------
-Ran 33 tests in 0.111s
+Ran 33 tests in 0.515s
 
 OK
 + : '>>>>> End Test Output'

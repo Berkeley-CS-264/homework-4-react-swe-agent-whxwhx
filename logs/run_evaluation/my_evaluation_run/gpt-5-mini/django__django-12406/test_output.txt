@@ -509,79 +509,7 @@ test_label_overrides (model_forms.tests.TestFieldOverridesByFormMeta) ... ok
 test_widget_overrides (model_forms.tests.TestFieldOverridesByFormMeta) ... ok
 test_notrequired_overrides_notblank (model_forms.tests.ValidationTest) ... ok
 test_validates_with_replaced_field_excluded (model_forms.tests.ValidationTest) ... ok
-test_validates_with_replaced_field_not_specified (model_forms.tests.ValidationTest) ... ok
-
-======================================================================
-ERROR: test_choices_radio_blank (model_forms.test_modelchoicefield.ModelChoiceFieldTests) (blank=True, widget=<class 'django.forms.widgets.RadioSelect'>)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/testbed/tests/model_forms/test_modelchoicefield.py", line 155, in test_choices_radio_blank
-    blank=blank,
-  File "/testbed/django/forms/models.py", line 1197, in __init__
-    initial=initial, help_text=help_text, **kwargs
-TypeError: __init__() got an unexpected keyword argument 'blank'
-
-======================================================================
-ERROR: test_choices_radio_blank (model_forms.test_modelchoicefield.ModelChoiceFieldTests) (blank=False, widget=<class 'django.forms.widgets.RadioSelect'>)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/testbed/tests/model_forms/test_modelchoicefield.py", line 155, in test_choices_radio_blank
-    blank=blank,
-  File "/testbed/django/forms/models.py", line 1197, in __init__
-    initial=initial, help_text=help_text, **kwargs
-TypeError: __init__() got an unexpected keyword argument 'blank'
-
-======================================================================
-ERROR: test_choices_radio_blank (model_forms.test_modelchoicefield.ModelChoiceFieldTests) (blank=True, widget=<django.forms.widgets.RadioSelect object at 0x7f2a34d9db70>)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/testbed/tests/model_forms/test_modelchoicefield.py", line 155, in test_choices_radio_blank
-    blank=blank,
-  File "/testbed/django/forms/models.py", line 1197, in __init__
-    initial=initial, help_text=help_text, **kwargs
-TypeError: __init__() got an unexpected keyword argument 'blank'
-
-======================================================================
-ERROR: test_choices_radio_blank (model_forms.test_modelchoicefield.ModelChoiceFieldTests) (blank=False, widget=<django.forms.widgets.RadioSelect object at 0x7f2a34d9db70>)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/testbed/tests/model_forms/test_modelchoicefield.py", line 155, in test_choices_radio_blank
-    blank=blank,
-  File "/testbed/django/forms/models.py", line 1197, in __init__
-    initial=initial, help_text=help_text, **kwargs
-TypeError: __init__() got an unexpected keyword argument 'blank'
-
-======================================================================
-FAIL: test_non_blank_foreign_key_with_radio (model_forms.tests.ModelFormBaseTest)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/testbed/tests/model_forms/tests.py", line 290, in test_non_blank_foreign_key_with_radio
-    [(character.pk, 'user')],
-AssertionError: Lists differ: [('', '---------'), (<django.forms.models.M[54 chars]er')] != [(1, 'user')]
-
-First differing element 0:
-('', '---------')
-(1, 'user')
-
-First list contains 1 additional elements.
-First extra element 1:
-(<django.forms.models.ModelChoiceIteratorValue object at 0x7f2a34a22be0>, 'user')
-
-- [('', '---------'),
--  (<django.forms.models.ModelChoiceIteratorValue object at 0x7f2a34a22be0>,
--   'user')]
-? ^
-
-+ [(1, 'user')]
-? ^^^^
-
-
-----------------------------------------------------------------------
-Ran 169 tests in 0.509s
-
-FAILED (failures=1, errors=4)
-Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
-Testing against Django installed in '/testbed/django'
+test_validates_with_replaced_field_not_specified (model_forms.tests.ValidationTest) ... Testing against Django installed in '/testbed/django'
 Importing application model_forms
 Skipping setup of unused database(s): other.
 Operations to perform:
@@ -648,6 +576,78 @@ Running migrations:
   Applying sites.0001_initial... OK
   Applying sites.0002_alter_domain_unique... OK
 System check identified no issues (0 silenced).
+ok
+
+======================================================================
+ERROR: test_choices_radio_blank (model_forms.test_modelchoicefield.ModelChoiceFieldTests) (blank=True, widget=<class 'django.forms.widgets.RadioSelect'>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/testbed/tests/model_forms/test_modelchoicefield.py", line 155, in test_choices_radio_blank
+    blank=blank,
+  File "/testbed/django/forms/models.py", line 1197, in __init__
+    initial=initial, help_text=help_text, **kwargs
+TypeError: __init__() got an unexpected keyword argument 'blank'
+
+======================================================================
+ERROR: test_choices_radio_blank (model_forms.test_modelchoicefield.ModelChoiceFieldTests) (blank=False, widget=<class 'django.forms.widgets.RadioSelect'>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/testbed/tests/model_forms/test_modelchoicefield.py", line 155, in test_choices_radio_blank
+    blank=blank,
+  File "/testbed/django/forms/models.py", line 1197, in __init__
+    initial=initial, help_text=help_text, **kwargs
+TypeError: __init__() got an unexpected keyword argument 'blank'
+
+======================================================================
+ERROR: test_choices_radio_blank (model_forms.test_modelchoicefield.ModelChoiceFieldTests) (blank=True, widget=<django.forms.widgets.RadioSelect object at 0x7fad5bd8e320>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/testbed/tests/model_forms/test_modelchoicefield.py", line 155, in test_choices_radio_blank
+    blank=blank,
+  File "/testbed/django/forms/models.py", line 1197, in __init__
+    initial=initial, help_text=help_text, **kwargs
+TypeError: __init__() got an unexpected keyword argument 'blank'
+
+======================================================================
+ERROR: test_choices_radio_blank (model_forms.test_modelchoicefield.ModelChoiceFieldTests) (blank=False, widget=<django.forms.widgets.RadioSelect object at 0x7fad5bd8e320>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/testbed/tests/model_forms/test_modelchoicefield.py", line 155, in test_choices_radio_blank
+    blank=blank,
+  File "/testbed/django/forms/models.py", line 1197, in __init__
+    initial=initial, help_text=help_text, **kwargs
+TypeError: __init__() got an unexpected keyword argument 'blank'
+
+======================================================================
+FAIL: test_non_blank_foreign_key_with_radio (model_forms.tests.ModelFormBaseTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/testbed/tests/model_forms/tests.py", line 290, in test_non_blank_foreign_key_with_radio
+    [(character.pk, 'user')],
+AssertionError: Lists differ: [('', '---------'), (<django.forms.models.M[54 chars]er')] != [(1, 'user')]
+
+First differing element 0:
+('', '---------')
+(1, 'user')
+
+First list contains 1 additional elements.
+First extra element 1:
+(<django.forms.models.ModelChoiceIteratorValue object at 0x7fad5ba11a20>, 'user')
+
+- [('', '---------'),
+-  (<django.forms.models.ModelChoiceIteratorValue object at 0x7fad5ba11a20>,
+-   'user')]
+? ^
+
++ [(1, 'user')]
+? ^^^^
+
+
+----------------------------------------------------------------------
+Ran 169 tests in 0.861s
+
+FAILED (failures=1, errors=4)
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
 + : '>>>>> End Test Output'
 + git checkout 335c9c94acf263901fb023404408880245b0c4b4 tests/model_forms/models.py tests/model_forms/test_modelchoicefield.py tests/model_forms/tests.py
 Updated 3 paths from 691e9683de

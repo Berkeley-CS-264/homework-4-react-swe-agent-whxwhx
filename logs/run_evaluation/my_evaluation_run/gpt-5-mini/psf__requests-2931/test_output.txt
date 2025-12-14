@@ -144,7 +144,6 @@ Author: SWE-bench <setup@swebench.config>
 Date:   Wed Sep 10 14:59:33 2025 +0000
 
     SWE-bench
-+ git -c core.fileMode=false diff 5f7a3a74aab1625c2bb65f643197ee885e3da576
 diff --git a/requests/models.py b/requests/models.py
 index 9c624d3..c3a5927 100644
 --- a/requests/models.py
@@ -171,6 +170,7 @@ index 9c624d3..c3a5927 100644
      @staticmethod
      def _encode_files(files, data):
          """Build the body for a multipart/form-data request.
++ git -c core.fileMode=false diff 5f7a3a74aab1625c2bb65f643197ee885e3da576
 + source /opt/miniconda3/bin/activate
 ++ _CONDA_ROOT=/opt/miniconda3
 ++ . /opt/miniconda3/etc/profile.d/conda.sh
@@ -302,8 +302,8 @@ Processing /testbed
 Building wheels for collected packages: requests
   Building wheel for requests (setup.py): started
   Building wheel for requests (setup.py): finished with status 'done'
-  Created wheel for requests: filename=requests-2.9.0-py2.py3-none-any.whl size=491719 sha256=3948f5e1e621e6b69d7734029e61ff63d4f6725237d10dcf98979b52184c1dab
-  Stored in directory: /tmp/pip-ephem-wheel-cache-_nxiots0/wheels/7d/66/67/70d1ee2124ccf21d601c352e25cdca10f611f7c8b3f9ffb9e4
+  Created wheel for requests: filename=requests-2.9.0-py2.py3-none-any.whl size=491719 sha256=185d8cec73b6f6d3160fc80a249dd2c95ae9651d583e486fbb51e1b3b056a15f
+  Stored in directory: /tmp/pip-ephem-wheel-cache-f0ssnsgn/wheels/7d/66/67/70d1ee2124ccf21d601c352e25cdca10f611f7c8b3f9ffb9e4
 Successfully built requests
 Installing collected packages: requests
   Attempting uninstall: requests
@@ -1223,7 +1223,7 @@ E       recursive dependency involving fixture 'httpbin' detected
 =================================== FAILURES ===================================
 __________________ TestRequests.test_params_bytes_are_encoded __________________
 
-self = <test_requests.TestRequests object at 0x7feb1f9f56a0>
+self = <test_requests.TestRequests object at 0x7f8647bed6a0>
 
     def test_params_bytes_are_encoded(self):
 >       request = requests.Request('GET', 'http://example.com',
@@ -1525,7 +1525,7 @@ ERROR test_requests.py::TestRedirects::test_requests_are_updated_each_time
 ERROR test_requests.py::test_urllib3_retries
 ERROR test_requests.py::test_urllib3_pool_connection_closed
 FAILED test_requests.py::TestRequests::test_params_bytes_are_encoded - TypeEr...
-======= 1 failed, 85 passed, 1 xfailed, 28 warnings, 81 errors in 1.10s ========
+======= 1 failed, 85 passed, 1 xfailed, 28 warnings, 81 errors in 1.14s ========
 + : '>>>>> End Test Output'
 + git checkout 5f7a3a74aab1625c2bb65f643197ee885e3da576 test_requests.py
 Updated 1 path from bf39b3a

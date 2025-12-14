@@ -307,8 +307,8 @@ Requirement already satisfied: sqlparse>=0.3.1 in /opt/miniconda3/envs/testbed/l
 Building wheels for collected packages: Django
   Building editable for Django (pyproject.toml): started
   Building editable for Django (pyproject.toml): finished with status 'done'
-  Created wheel for Django: filename=django-5.0.dev20250910133640-0.editable-py3-none-any.whl size=27435 sha256=8fbc826477261886181f384f02219cb89cb2a3a731ffe65f15b9b390ee15ab19
-  Stored in directory: /tmp/pip-ephem-wheel-cache-fe52liqw/wheels/49/5f/4f/01b7d31ea6ddac9643da788242d33e5fd3467d95d17b032c6b
+  Created wheel for Django: filename=django-5.0.dev20250910133640-0.editable-py3-none-any.whl size=27435 sha256=58153e581d4f9ddc083cf1d28b6c22e1b929e6660860f314ac8b06e5720a2801
+  Stored in directory: /tmp/pip-ephem-wheel-cache-e2m0b432/wheels/49/5f/4f/01b7d31ea6ddac9643da788242d33e5fd3467d95d17b032c6b
 Successfully built Django
 Installing collected packages: Django
   Attempting uninstall: Django
@@ -392,7 +392,7 @@ test_sorted_imports (migrations.test_writer.WriterTests.test_sorted_imports)
 #24155 - Tests ordering of imports. ... ok
 
 ----------------------------------------------------------------------
-Ran 52 tests in 0.031s
+Ran 52 tests in 0.038s
 
 OK
 + : '>>>>> End Test Output'

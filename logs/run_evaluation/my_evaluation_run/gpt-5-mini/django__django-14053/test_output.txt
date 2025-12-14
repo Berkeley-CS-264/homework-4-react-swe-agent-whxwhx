@@ -333,8 +333,8 @@ Requirement already satisfied: typing-extensions>=4 in /opt/miniconda3/envs/test
 Building wheels for collected packages: Django
   Building editable for Django (pyproject.toml): started
   Building editable for Django (pyproject.toml): finished with status 'done'
-  Created wheel for Django: filename=django-4.0-0.editable-py3-none-any.whl size=25589 sha256=518ddc06a44e1967916615301a9b4d70ae6699132df32bcfe4732bf4abc2c6b7
-  Stored in directory: /tmp/pip-ephem-wheel-cache-2unigkog/wheels/b2/50/f1/218f2e9962a80d01a4b1297698978f9fb3b60056aa24343f24
+  Created wheel for Django: filename=django-4.0-0.editable-py3-none-any.whl size=25589 sha256=6a845c7b14e724c85747e4b00a1410235932ed32aeef70c15db94075f4aa815d
+  Stored in directory: /tmp/pip-ephem-wheel-cache-yqfaqf1l/wheels/b2/50/f1/218f2e9962a80d01a4b1297698978f9fb3b60056aa24343f24
 Successfully built Django
 Installing collected packages: Django
   Attempting uninstall: Django
@@ -393,7 +393,7 @@ test_collect_static_files_permissions (staticfiles_tests.test_storage.TestStatic
 test_collect_static_files_subclass_of_static_storage (staticfiles_tests.test_storage.TestStaticFilePermissions) ... ok
 
 ----------------------------------------------------------------------
-Ran 32 tests in 0.680s
+Ran 32 tests in 0.875s
 
 OK
 + : '>>>>> End Test Output'

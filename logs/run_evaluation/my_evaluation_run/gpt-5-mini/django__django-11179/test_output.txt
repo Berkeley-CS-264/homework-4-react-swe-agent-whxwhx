@@ -353,14 +353,7 @@ test_setdefault_none (delete.tests.OnDeleteTests) ... ok
 test_setnull (delete.tests.OnDeleteTests) ... ok
 test_setnull_from_child (delete.tests.OnDeleteTests) ... ok
 test_setnull_from_parent (delete.tests.OnDeleteTests) ... ok
-test_setvalue (delete.tests.OnDeleteTests) ... ok
-
-----------------------------------------------------------------------
-Ran 42 tests in 0.796s
-
-OK (skipped=1)
-Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
-Testing against Django installed in '/testbed/django'
+test_setvalue (delete.tests.OnDeleteTests) ... Testing against Django installed in '/testbed/django'
 Importing application delete
 Skipping setup of unused database(s): other.
 Operations to perform:
@@ -400,6 +393,13 @@ Running migrations:
   Applying sites.0001_initial... OK
   Applying sites.0002_alter_domain_unique... OK
 System check identified no issues (0 silenced).
+ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 0.865s
+
+OK (skipped=1)
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
 + : '>>>>> End Test Output'
 + git checkout 19fc6376ce67d01ca37a91ef2f55ef769f50513a tests/delete/tests.py
 Updated 1 path from a40bb59e08

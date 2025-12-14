@@ -1,12 +1,12 @@
-2025-12-12 18:36:10,558 - INFO - Creating container for django__django-11179...
-2025-12-12 18:36:10,693 - INFO - Container for django__django-11179 created: 315fe81ed20b653351ba4abcb21b9045ca36f24a6300f7f1561763ab7c87965d
-2025-12-12 18:36:11,050 - INFO - Container for django__django-11179 started: 315fe81ed20b653351ba4abcb21b9045ca36f24a6300f7f1561763ab7c87965d
-2025-12-12 18:36:11,051 - INFO - Intermediate patch for django__django-11179 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-11179/patch.diff, now applying to container...
-2025-12-12 18:36:11,201 - INFO - >>>>> Applied Patch:
+2025-12-14 08:22:11,963 - INFO - Creating container for django__django-11179...
+2025-12-14 08:22:12,156 - INFO - Container for django__django-11179 created: b7589cb9b36a827c429e41388396173b6cd6493ef7c1ef39f03d364e9582a7b3
+2025-12-14 08:22:13,032 - INFO - Container for django__django-11179 started: b7589cb9b36a827c429e41388396173b6cd6493ef7c1ef39f03d364e9582a7b3
+2025-12-14 08:22:13,032 - INFO - Intermediate patch for django__django-11179 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-11179/patch.diff, now applying to container...
+2025-12-14 08:22:13,293 - INFO - >>>>> Applied Patch:
 Checking patch django/db/models/deletion.py...
 Applied patch django/db/models/deletion.py cleanly.
 
-2025-12-12 18:36:12,225 - INFO - Git diff before:
+2025-12-14 08:22:14,507 - INFO - Git diff before:
 diff --git a/django/db/models/deletion.py b/django/db/models/deletion.py
 index 92fe4affb9..3a462f1c4c 100644
 --- a/django/db/models/deletion.py
@@ -19,10 +19,10 @@ index 92fe4affb9..3a462f1c4c 100644
                  return count, {model._meta.label: count}
  
          with transaction.atomic(using=self.using, savepoint=False):
-2025-12-12 18:36:12,226 - INFO - Eval script for django__django-11179 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-11179/eval.sh; copying to container...
-2025-12-12 18:36:22,351 - INFO - Test runtime: 10.03 seconds
-2025-12-12 18:36:22,351 - INFO - Test output for django__django-11179 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-11179/test_output.txt
-2025-12-12 18:36:22,401 - INFO - Git diff after:
+2025-12-14 08:22:14,508 - INFO - Eval script for django__django-11179 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-11179/eval.sh; copying to container...
+2025-12-14 08:22:26,417 - INFO - Test runtime: 11.80 seconds
+2025-12-14 08:22:26,417 - INFO - Test output for django__django-11179 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-11179/test_output.txt
+2025-12-14 08:22:26,488 - INFO - Git diff after:
 diff --git a/django/db/models/deletion.py b/django/db/models/deletion.py
 index 92fe4affb9..3a462f1c4c 100644
 --- a/django/db/models/deletion.py
@@ -35,9 +35,9 @@ index 92fe4affb9..3a462f1c4c 100644
                  return count, {model._meta.label: count}
  
          with transaction.atomic(using=self.using, savepoint=False):
-2025-12-12 18:36:22,401 - INFO - Grading answer for django__django-11179...
-2025-12-12 18:36:22,401 - INFO - report: {'django__django-11179': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': True, 'tests_status': {'FAIL_TO_PASS': {'success': ['test_fast_delete_instance_set_pk_none (delete.tests.FastDeleteTests)'], 'failure': []}, 'PASS_TO_PASS': {'success': ['test_fast_delete_empty_no_update_can_self_select (delete.tests.FastDeleteTests)', 'test_fast_delete_fk (delete.tests.FastDeleteTests)', 'test_fast_delete_inheritance (delete.tests.FastDeleteTests)', 'test_fast_delete_joined_qs (delete.tests.FastDeleteTests)', 'test_fast_delete_large_batch (delete.tests.FastDeleteTests)', 'test_fast_delete_m2m (delete.tests.FastDeleteTests)', 'test_fast_delete_qs (delete.tests.FastDeleteTests)', 'test_fast_delete_revm2m (delete.tests.FastDeleteTests)', 'test_auto (delete.tests.OnDeleteTests)', 'test_auto_nullable (delete.tests.OnDeleteTests)', 'test_cascade (delete.tests.OnDeleteTests)', 'test_cascade_from_child (delete.tests.OnDeleteTests)', 'test_cascade_from_parent (delete.tests.OnDeleteTests)', 'test_cascade_nullable (delete.tests.OnDeleteTests)', 'test_do_nothing (delete.tests.OnDeleteTests)', 'test_do_nothing_qscount (delete.tests.OnDeleteTests)', 'test_inheritance_cascade_down (delete.tests.OnDeleteTests)', 'test_inheritance_cascade_up (delete.tests.OnDeleteTests)', 'test_o2o_setnull (delete.tests.OnDeleteTests)', 'test_protect (delete.tests.OnDeleteTests)', 'test_setdefault (delete.tests.OnDeleteTests)', 'test_setdefault_none (delete.tests.OnDeleteTests)', 'test_setnull (delete.tests.OnDeleteTests)', 'test_setnull_from_child (delete.tests.OnDeleteTests)', 'test_setnull_from_parent (delete.tests.OnDeleteTests)', 'test_setvalue (delete.tests.OnDeleteTests)', 'test_bulk (delete.tests.DeletionTests)', 'test_can_defer_constraint_checks (delete.tests.DeletionTests)', 'test_delete_with_keeping_parents (delete.tests.DeletionTests)', 'test_delete_with_keeping_parents_relationships (delete.tests.DeletionTests)', 'test_deletion_order (delete.tests.DeletionTests)', 'test_hidden_related (delete.tests.DeletionTests)', 'test_instance_update (delete.tests.DeletionTests)', 'test_large_delete (delete.tests.DeletionTests)', 'test_large_delete_related (delete.tests.DeletionTests)', 'test_m2m (delete.tests.DeletionTests)', 'test_model_delete_returns_num_rows (delete.tests.DeletionTests)', 'test_proxied_model_duplicate_queries (delete.tests.DeletionTests)', 'test_queryset_delete_returns_num_rows (delete.tests.DeletionTests)', 'test_relational_post_delete_signals_happen_before_parent_object (delete.tests.DeletionTests)'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+2025-12-14 08:22:26,488 - INFO - Grading answer for django__django-11179...
+2025-12-14 08:22:26,489 - INFO - report: {'django__django-11179': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': True, 'tests_status': {'FAIL_TO_PASS': {'success': ['test_fast_delete_instance_set_pk_none (delete.tests.FastDeleteTests)'], 'failure': []}, 'PASS_TO_PASS': {'success': ['test_fast_delete_empty_no_update_can_self_select (delete.tests.FastDeleteTests)', 'test_fast_delete_fk (delete.tests.FastDeleteTests)', 'test_fast_delete_inheritance (delete.tests.FastDeleteTests)', 'test_fast_delete_joined_qs (delete.tests.FastDeleteTests)', 'test_fast_delete_large_batch (delete.tests.FastDeleteTests)', 'test_fast_delete_m2m (delete.tests.FastDeleteTests)', 'test_fast_delete_qs (delete.tests.FastDeleteTests)', 'test_fast_delete_revm2m (delete.tests.FastDeleteTests)', 'test_auto (delete.tests.OnDeleteTests)', 'test_auto_nullable (delete.tests.OnDeleteTests)', 'test_cascade (delete.tests.OnDeleteTests)', 'test_cascade_from_child (delete.tests.OnDeleteTests)', 'test_cascade_from_parent (delete.tests.OnDeleteTests)', 'test_cascade_nullable (delete.tests.OnDeleteTests)', 'test_do_nothing (delete.tests.OnDeleteTests)', 'test_do_nothing_qscount (delete.tests.OnDeleteTests)', 'test_inheritance_cascade_down (delete.tests.OnDeleteTests)', 'test_inheritance_cascade_up (delete.tests.OnDeleteTests)', 'test_o2o_setnull (delete.tests.OnDeleteTests)', 'test_protect (delete.tests.OnDeleteTests)', 'test_setdefault (delete.tests.OnDeleteTests)', 'test_setdefault_none (delete.tests.OnDeleteTests)', 'test_setnull (delete.tests.OnDeleteTests)', 'test_setnull_from_child (delete.tests.OnDeleteTests)', 'test_setnull_from_parent (delete.tests.OnDeleteTests)', 'test_setvalue (delete.tests.OnDeleteTests)', 'test_bulk (delete.tests.DeletionTests)', 'test_can_defer_constraint_checks (delete.tests.DeletionTests)', 'test_delete_with_keeping_parents (delete.tests.DeletionTests)', 'test_delete_with_keeping_parents_relationships (delete.tests.DeletionTests)', 'test_deletion_order (delete.tests.DeletionTests)', 'test_hidden_related (delete.tests.DeletionTests)', 'test_instance_update (delete.tests.DeletionTests)', 'test_large_delete (delete.tests.DeletionTests)', 'test_large_delete_related (delete.tests.DeletionTests)', 'test_m2m (delete.tests.DeletionTests)', 'test_model_delete_returns_num_rows (delete.tests.DeletionTests)', 'test_proxied_model_duplicate_queries (delete.tests.DeletionTests)', 'test_queryset_delete_returns_num_rows (delete.tests.DeletionTests)', 'test_relational_post_delete_signals_happen_before_parent_object (delete.tests.DeletionTests)'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
 Result for django__django-11179: resolved: True
-2025-12-12 18:36:22,402 - INFO - Attempting to stop container sweb.eval.django__django-11179.my_evaluation_run...
-2025-12-12 18:36:37,906 - INFO - Attempting to remove container sweb.eval.django__django-11179.my_evaluation_run...
-2025-12-12 18:36:37,951 - INFO - Container sweb.eval.django__django-11179.my_evaluation_run removed.
+2025-12-14 08:22:26,489 - INFO - Attempting to stop container sweb.eval.django__django-11179.my_evaluation_run...
+2025-12-14 08:22:42,102 - INFO - Attempting to remove container sweb.eval.django__django-11179.my_evaluation_run...
+2025-12-14 08:22:42,409 - INFO - Container sweb.eval.django__django-11179.my_evaluation_run removed.

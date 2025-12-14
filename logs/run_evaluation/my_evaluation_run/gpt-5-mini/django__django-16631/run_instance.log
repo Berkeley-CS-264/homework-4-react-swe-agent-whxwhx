@@ -1,14 +1,14 @@
-2025-12-12 18:36:10,568 - INFO - Creating container for django__django-16631...
-2025-12-12 18:36:10,636 - INFO - Container for django__django-16631 created: 4b367d44a3f75b2e0867c72b5cccae2e285779151f1c166dc1217b758b2c9f2f
-2025-12-12 18:36:10,967 - INFO - Container for django__django-16631 started: 4b367d44a3f75b2e0867c72b5cccae2e285779151f1c166dc1217b758b2c9f2f
-2025-12-12 18:36:10,967 - INFO - Intermediate patch for django__django-16631 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-16631/patch.diff, now applying to container...
-2025-12-12 18:36:11,077 - INFO - >>>>> Applied Patch:
+2025-12-14 08:22:11,969 - INFO - Creating container for django__django-16631...
+2025-12-14 08:22:12,287 - INFO - Container for django__django-16631 created: 5ace573deb4fdb513e481813430f9d5151b748651848ea555c2f84e7ade25204
+2025-12-14 08:22:13,222 - INFO - Container for django__django-16631 started: 5ace573deb4fdb513e481813430f9d5151b748651848ea555c2f84e7ade25204
+2025-12-14 08:22:13,222 - INFO - Intermediate patch for django__django-16631 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-16631/patch.diff, now applying to container...
+2025-12-14 08:22:13,434 - INFO - >>>>> Applied Patch:
 Checking patch django/contrib/auth/__init__.py...
 Checking patch django/contrib/auth/base_user.py...
 Applied patch django/contrib/auth/__init__.py cleanly.
 Applied patch django/contrib/auth/base_user.py cleanly.
 
-2025-12-12 18:36:12,110 - INFO - Git diff before:
+2025-12-14 08:22:14,766 - INFO - Git diff before:
 diff --git a/django/contrib/auth/__init__.py b/django/contrib/auth/__init__.py
 index 155330c596..b37810ad14 100644
 --- a/django/contrib/auth/__init__.py
@@ -96,10 +96,10 @@ index 5ee30bf59c..481045bd89 100644
      @classmethod
      def get_email_field_name(cls):
          try:
-2025-12-12 18:36:12,110 - INFO - Eval script for django__django-16631 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-16631/eval.sh; copying to container...
-2025-12-12 18:36:20,485 - INFO - Test runtime: 8.28 seconds
-2025-12-12 18:36:20,486 - INFO - Test output for django__django-16631 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-16631/test_output.txt
-2025-12-12 18:36:20,600 - INFO - Git diff after:
+2025-12-14 08:22:14,766 - INFO - Eval script for django__django-16631 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-16631/eval.sh; copying to container...
+2025-12-14 08:22:25,341 - INFO - Test runtime: 10.46 seconds
+2025-12-14 08:22:25,341 - INFO - Test output for django__django-16631 written to logs/run_evaluation/my_evaluation_run/gpt-5-mini/django__django-16631/test_output.txt
+2025-12-14 08:22:25,444 - INFO - Git diff after:
 diff --git a/django/contrib/auth/__init__.py b/django/contrib/auth/__init__.py
 index 155330c596..b37810ad14 100644
 --- a/django/contrib/auth/__init__.py
@@ -187,9 +187,9 @@ index 5ee30bf59c..481045bd89 100644
      @classmethod
      def get_email_field_name(cls):
          try:
-2025-12-12 18:36:20,600 - INFO - Grading answer for django__django-16631...
-2025-12-12 18:36:20,602 - INFO - report: {'django__django-16631': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['test_get_user_fallback_secret (auth_tests.test_basic.TestGetUser.test_get_user_fallback_secret)']}, 'PASS_TO_PASS': {'success': ['test_get_user (auth_tests.test_basic.TestGetUser.test_get_user)', 'test_get_user_anonymous (auth_tests.test_basic.TestGetUser.test_get_user_anonymous)', 'The current user model can be retrieved', 'Check the creation and properties of a superuser', 'test_superuser_no_email_or_password (auth_tests.test_basic.BasicTestCase.test_superuser_no_email_or_password)', 'The current user model can be swapped out for another', 'The alternate user setting must point to something in the format app.model', 'The current user model must point to an installed model', 'test_unicode_username (auth_tests.test_basic.BasicTestCase.test_unicode_username)', 'Users can be created and can set their password', 'Users can be created without an email', 'Default User model verbose names are translatable (#19945)'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+2025-12-14 08:22:25,444 - INFO - Grading answer for django__django-16631...
+2025-12-14 08:22:25,445 - INFO - report: {'django__django-16631': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['test_get_user_fallback_secret (auth_tests.test_basic.TestGetUser.test_get_user_fallback_secret)']}, 'PASS_TO_PASS': {'success': ['test_get_user (auth_tests.test_basic.TestGetUser.test_get_user)', 'test_get_user_anonymous (auth_tests.test_basic.TestGetUser.test_get_user_anonymous)', 'The current user model can be retrieved', 'Check the creation and properties of a superuser', 'test_superuser_no_email_or_password (auth_tests.test_basic.BasicTestCase.test_superuser_no_email_or_password)', 'The current user model can be swapped out for another', 'The alternate user setting must point to something in the format app.model', 'The current user model must point to an installed model', 'test_unicode_username (auth_tests.test_basic.BasicTestCase.test_unicode_username)', 'Users can be created and can set their password', 'Users can be created without an email', 'Default User model verbose names are translatable (#19945)'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
 Result for django__django-16631: resolved: False
-2025-12-12 18:36:20,602 - INFO - Attempting to stop container sweb.eval.django__django-16631.my_evaluation_run...
-2025-12-12 18:36:36,264 - INFO - Attempting to remove container sweb.eval.django__django-16631.my_evaluation_run...
-2025-12-12 18:36:36,286 - INFO - Container sweb.eval.django__django-16631.my_evaluation_run removed.
+2025-12-14 08:22:25,447 - INFO - Attempting to stop container sweb.eval.django__django-16631.my_evaluation_run...
+2025-12-14 08:22:41,385 - INFO - Attempting to remove container sweb.eval.django__django-16631.my_evaluation_run...
+2025-12-14 08:22:41,830 - INFO - Container sweb.eval.django__django-16631.my_evaluation_run removed.

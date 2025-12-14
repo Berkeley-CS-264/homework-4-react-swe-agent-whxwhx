@@ -437,14 +437,7 @@ test_options_for_post_view (generic_views.test_base.ViewTest) ... ok
 test_overridden_setup (generic_views.test_base.ViewTest) ... ok
 test_pathological_http_method (generic_views.test_base.ViewTest) ... ok
 test_setup_adds_args_kwargs_request (generic_views.test_base.ViewTest) ... ok
-test_setup_get_and_head (generic_views.test_base.ViewTest) ... ok
-
-----------------------------------------------------------------------
-Ran 59 tests in 3.097s
-
-OK
-Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
-Testing against Django installed in '/testbed/django'
+test_setup_get_and_head (generic_views.test_base.ViewTest) ... Testing against Django installed in '/testbed/django'
 Importing application generic_views
 Skipping setup of unused database(s): other.
 Operations to perform:
@@ -470,6 +463,13 @@ Running migrations:
   Applying sites.0001_initial... OK
   Applying sites.0002_alter_domain_unique... OK
 System check identified no issues (0 silenced).
+ok
+
+----------------------------------------------------------------------
+Ran 59 tests in 3.136s
+
+OK
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
 + : '>>>>> End Test Output'
 + git checkout 8954f255bbf5f4ee997fd6de62cb50fc9b5dd697 tests/generic_views/test_base.py
 Updated 1 path from 289deb388c
