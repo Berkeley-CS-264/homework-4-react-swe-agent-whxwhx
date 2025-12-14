@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.8.29)  13 DEC 2025 00:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.8.29)  14 DEC 2025 01:14
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -261,7 +261,7 @@ File: l3backend-pdftex.def 2022-02-07 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count279
 \l__pdf_internal_box=\box51
 )
-No file report.aux.
+(./report.aux)
 \openout1 = `report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
@@ -282,6 +282,7 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 14.
 LaTeX Font Info:    ... okay on input line 14.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 14.
 LaTeX Font Info:    ... okay on input line 14.
+
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -332,12 +333,14 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 14.
 LaTeX Info: Redefining \pageref on input line 14.
 LaTeX Info: Redefining \nameref on input line 14.
+ (./report.out) (./report.out)
 \@outlinefile=\write3
 \openout3 = `report.out'.
 
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
 6.
- (/usr/local/texlive/2022/texmf-dist/tex/latex/lm/ot1lmr.fd
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
@@ -372,8 +375,8 @@ File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [1
 
 {/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 4
-8.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 5
+1.
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
@@ -385,28 +388,29 @@ Package rerunfilecheck Warning: File `report.out' has changed.
 (rerunfilecheck)                or use package `bookmark'.
 
 Package rerunfilecheck Info: Checksums for `report.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  876B1AF42736F188973D56974E0CA5A9;2222.
+(rerunfilecheck)             Before: FDE00CF7C1966C0B3542E51CB4CEBB36;2679
+(rerunfilecheck)             After:  A315A126E1792BD784D3883C5F32A510;2842.
  ) 
 Here is how much of TeX's memory you used:
- 8921 strings out of 478268
- 141770 string characters out of 5846347
- 441531 words of memory out of 5000000
- 27023 multiletter control sequences out of 15000+600000
- 504299 words of font info for 49 fonts, out of 8000000 for 9000
+ 8945 strings out of 478268
+ 142070 string characters out of 5846347
+ 441768 words of memory out of 5000000
+ 27038 multiletter control sequences out of 15000+600000
+ 507294 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,6n,63p,548b,427s stack positions out of 10000i,1000n,20000p,200000b,200000s
-{/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/local
-/texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}</usr/local/texlive/2022/
-texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2022/texmf-dist
-/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type
-1/public/lm/lmr12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm
-/lmr17.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmri10.pfb
-></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on report.pdf (3 pages, 159863 bytes).
+ 60i,6n,63p,595b,427s stack positions out of 10000i,1000n,20000p,200000b,200000s
+{/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/
+texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}</usr/local/texlive/2022/
+texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/local/texlive/2022/texmf-dist
+/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2022/texmf-dist/fonts/typ
+e1/public/lm/lmr10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/l
+m/lmr12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmr17.pfb
+></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmri10.pfb></usr/loc
+al/texlive/2022/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
+Output written on report.pdf (3 pages, 184784 bytes).
 PDF statistics:
- 71 PDF objects out of 1000 (max. 8388607)
- 52 compressed objects within 1 object stream
- 16 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 118 PDF objects out of 1000 (max. 8388607)
+ 97 compressed objects within 1 object stream
+ 18 named destinations out of 1000 (max. 500000)
+ 105 words of extra memory for PDF output out of 10000 (max. 10000000)
 

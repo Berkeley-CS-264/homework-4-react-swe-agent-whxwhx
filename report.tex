@@ -8,7 +8,7 @@
 \usepackage{parskip}
 
 \title{CS 264 HW: ReAct Agent for Software Engineering\\Report}
-\author{Student}
+\author{Hongxun Wu}
 \date{\today}
 
 \begin{document}
@@ -95,6 +95,9 @@ Overall accuracy on this subset is \textbf{50\%} (10/20 resolved).
 
 \section{Observation}
 The most impactful improvements were prompt-format alignment (multi-turn chat) and robustness against formatting drift (repeating the system message at the end of each round and relaxing the end marker). Together, these changes reduced the rate of invalid tool-call outputs and improved overall stability when operating in long contexts.
+
+\section{Statement of LLM Usage}
+I used an LLM to help write this report. Specifically, I verbally described (in natural language) the key design changes I made to the agent and the evaluation outcomes I observed, and then asked the LLM to draft an English LaTeX report based on those points. I reviewed and edited the generated text to ensure it matches my implementation and the reported results.
 
 \end{document}
 
