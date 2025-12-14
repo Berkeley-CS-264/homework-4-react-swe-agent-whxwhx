@@ -36,6 +36,9 @@ To reduce brittleness, I changed the parser's end delimiter to the shorter prefi
 This accepts both the full marker and common ``missing trailing dashes'' variants, which significantly reduced parse failures.
 
 \section{Additional Engineering Guardrails}
+\subsection{Respect OpenAI message-role constraints while keeping tool outputs distinct}
+This agent uses a \emph{textual} function-call protocol (parsed by string markers) rather than OpenAI's native tool-calling interface. In OpenAI's native protocol, messages with \texttt{role="tool"} must correspond to a preceding assistant \texttt{tool\_calls} entry with a matching \texttt{tool\_call\_id}. To avoid protocol violations while still keeping tool outputs distinct in the agent's internal state, the agent stores tool results as \texttt{role="tool"} internally but maps them to \texttt{role="user"} when sending the message list to the API.
+
 \subsection{Typed tool arguments}
 The textual tool-call format produces arguments as strings. Some tools (notably \texttt{replace\_in\_file}) require integer line numbers. I added automatic argument coercion based on the tool signature (e.g., converting \texttt{"266"} to \texttt{266} when an argument is annotated as \texttt{int}). This prevents common runtime errors such as comparisons between \texttt{str} and \texttt{int}.
 
@@ -43,20 +46,27 @@ The textual tool-call format produces arguments as strings. Some tools (notably 
 SWE-bench evaluation disallows modifying or adding tests. The agent now detects changes to test paths (e.g., \texttt{tests/}, \texttt{test\_*.py}, \texttt{*\_test.py}) and automatically reverts/removes them, then instructs the model to re-implement the fix without touching tests.
 
 \section{Evaluation Results}
-The evaluation file reports:
+Artifacts for this run:
+\begin{itemize}[leftmargin=2em]
+  \item Predictions file: \texttt{results/preds.json}
+  \item Per-instance trajectories: \texttt{results/<instance\_id>/<instance\_id>.traj.json}
+  \item Evaluation summary: \texttt{gpt-5-mini.my\_evaluation\_run.json}
+\end{itemize}
+
+The evaluation summary reports:
 \begin{itemize}[leftmargin=2em]
   \item Total instances: 20
   \item Submitted: 20
   \item Completed: 20
-  \item Resolved: 11
-  \item Unresolved: 9
+  \item Resolved: 10
+  \item Unresolved: 10
   \item Empty patch: 0
   \item Error: 0
 \end{itemize}
+Overall accuracy on this subset is \textbf{50\%} (10/20 resolved).
 
 \subsection{Solved instances}
 \begin{itemize}[leftmargin=2em]
-  \item \texttt{astropy\_\_astropy-7166}
   \item \texttt{django\_\_django-11179}
   \item \texttt{django\_\_django-13297}
   \item \texttt{django\_\_django-13810}
@@ -71,6 +81,7 @@ The evaluation file reports:
 
 \subsection{Unsolved instances}
 \begin{itemize}[leftmargin=2em]
+  \item \texttt{astropy\_\_astropy-7166}
   \item \texttt{django\_\_django-10973}
   \item \texttt{django\_\_django-12406}
   \item \texttt{django\_\_django-14011}
