@@ -1,31 +1,62 @@
 diff --git a/astropy/utils/misc.py b/astropy/utils/misc.py
-index de3fb01d1..70d66b507 100644
+index de3fb01d1..77ea1787e 100644
 --- a/astropy/utils/misc.py
 +++ b/astropy/utils/misc.py
-@@ -523,21 +523,57 @@ class InheritDocstrings(type):
-     def __init__(cls, name, bases, dct):
-         def is_public_member(key):
-             return (
--                (key.startswith('__') and key.endswith('__')
--                 and len(key) > 4) or
--                not key.startswith('_'))
-+                (key.startswith('__') and key.endswith('__') and len(key) > 4)
-+                or not key.startswith('_'))
+@@ -528,13 +528,95 @@ class InheritDocstrings(type):
+                 not key.startswith('_'))
  
          for key, val in dct.items():
 -            if (inspect.isfunction(val) and
 -                is_public_member(key) and
 -                val.__doc__ is None):
--                for base in cls.__mro__[1:]:
--                    super_method = getattr(base, key, None)
--                    if super_method is not None:
--                        val.__doc__ = super_method.__doc__
 +            if not is_public_member(key):
 +                continue
 +
-+            # If the attribute in the class dict has no docstring, try to
-+            # inherit it from the first matching attribute in the MRO.
-+            if getattr(val, '__doc__', None) is not None:
++            # Handle plain functions, staticmethod, classmethod, and property.
++            # For staticmethod/classmethod, the underlying function is in __func__.
++            # For property, we need to create a new property with the inherited
++            # docstring if missing.
++            target_func = None
++            wrapper_type = None
++
++            if inspect.isfunction(val):
++                target_func = val
++                wrapper_type = None
++            elif isinstance(val, (staticmethod, classmethod)):
++                # staticmethod and classmethod wrap the function in __func__
++                target_func = val.__func__
++                wrapper_type = type(val)
++            elif isinstance(val, property):
++                # property doesn't expose the function via a uniform attribute,
++                # but fget is the getter function whose __doc__ is used as the
++                # property's docstring. If the property's __doc__ is None,
++                # attempt to inherit from the base.
++                if val.__doc__ is not None:
++                    continue
++                # find a docstring from base classes' attribute
+                 for base in cls.__mro__[1:]:
+-                    super_method = getattr(base, key, None)
+-                    if super_method is not None:
+-                        val.__doc__ = super_method.__doc__
++                    super_attr = getattr(base, key, None)
++                    if super_attr is None:
++                        continue
++                    # If the base attribute is a property, use its __doc__
++                    super_doc = getattr(super_attr, '__doc__', None)
++                    if super_doc:
++                        # replace the property in the class dict with one that
++                        # has the inherited docstring
++                        dct[key] = property(fget=val.fget, fset=val.fset,
++                                            fdel=val.fdel, doc=super_doc)
++                        break
++                continue
++            else:
++                # Not a function-like object we care about
++                continue
++
++            # If we have an underlying function to inspect and its doc is None,
++            # try to inherit from base classes.
++            if target_func is None or getattr(target_func, '__doc__', None) is not None:
 +                continue
 +
 +            for base in cls.__mro__[1:]:
@@ -33,41 +64,43 @@ index de3fb01d1..70d66b507 100644
 +                if super_method is None:
 +                    continue
 +
-+                # Plain functions defined in the class body
-+                if inspect.isfunction(val):
-+                    doc = getattr(super_method, '__doc__', None)
++                # Unwrap descriptors on the base to get at the function/doc.
++                if isinstance(super_method, (staticmethod, classmethod)):
++                    super_func = super_method.__func__
++                elif isinstance(super_method, property):
++                    # property docstring comes from its getter
++                    super_func = getattr(super_method, '__doc__', None)
++                    # if we got a docstring string, use it directly
++                    if isinstance(super_func, str) and super_func:
++                        # Need to set the doc on the wrapped function or recreate
++                        # the descriptor as appropriate.
++                        if wrapper_type is None:
++                            target_func.__doc__ = super_func
++                        else:
++                            dct[key] = wrapper_type(target_func)
++                            # ensure the wrapped function has the doc
++                            target_func.__doc__ = super_func
++                        break
++                    else:
++                        super_func = None
++                else:
++                    # plain function or other descriptor with __doc__
++                    super_func = getattr(super_method, '__doc__', None)
++
++                if super_func:
++                    # If super_func is a function, get its __doc__; otherwise it
++                    # may already be a docstring.
++                    doc = super_func.__doc__ if inspect.isfunction(super_func) else super_func
 +                    if doc:
-+                        val.__doc__ = doc
++                        # Apply the docstring to the target. If it was wrapped
++                        # (staticmethod/classmethod), recreate the wrapper so
++                        # the class attribute remains of the same descriptor type.
++                        if wrapper_type is None:
++                            target_func.__doc__ = doc
++                        else:
++                            # recreate the wrapper around the function (which
++                            # now has its doc set)
++                            dct[key] = wrapper_type(target_func)
                          break
  
--        super().__init__(name, bases, dct)
-+                # classmethod and staticmethod wrap the underlying function
-+                # in descriptors; update the underlying function's docstring.
-+                elif isinstance(val, classmethod):
-+                    func = val.__func__
-+                    doc = getattr(super_method, '__doc__', None)
-+                    if doc:
-+                        func.__doc__ = doc
-+                        break
-+                elif isinstance(val, staticmethod):
-+                    func = val.__func__
-+                    doc = getattr(super_method, '__doc__', None)
-+                    if doc:
-+                        func.__doc__ = doc
-+                        break
-+
-+                # For properties, create a new property with the inherited
-+                # docstring and set it on the class.
-+                elif isinstance(val, property):
-+                    doc = None
-+                    if isinstance(super_method, property):
-+                        doc = super_method.__doc__
-+                    else:
-+                        doc = getattr(super_method, '__doc__', None)
-+                    if doc:
-+                        new_prop = property(val.fget, val.fset, val.fdel, doc)
-+                        setattr(cls, key, new_prop)
-+                        break
- 
- 
- class OrderedDescriptor(metaclass=abc.ABCMeta):
+         super().__init__(name, bases, dct)

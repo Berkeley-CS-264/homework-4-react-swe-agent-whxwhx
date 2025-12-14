@@ -310,8 +310,8 @@ architecture:       64-bit
 cache:              no
 ground types:       python 
 numpy:              None
-random seed:        50219273
-hash randomization: on (PYTHONHASHSEED=3230504657)
+random seed:        72110620
+hash randomization: on (PYTHONHASHSEED=3272935167)
 
 sympy/physics/units/tests/test_quantities.py[34] 
 test_str_repr ok
@@ -350,7 +350,7 @@ test_prefixed_property ok
 test_physics_constant ok                                                    [OK]
 
 
-======== tests finished: 33 passed, 1 expected to fail, in 1.84 seconds ========
+======== tests finished: 33 passed, 1 expected to fail, in 1.98 seconds ========
 + : '>>>>> End Test Output'
 + git checkout e8c22f6eac7314be8d92590bfff92ced79ee03e2 sympy/physics/units/tests/test_quantities.py
 Updated 1 path from b86b9b19fd

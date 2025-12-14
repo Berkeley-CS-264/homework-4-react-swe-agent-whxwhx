@@ -147,12 +147,12 @@ Changes not staged for commit:
 
 no changes added to commit (use "git add" and/or "git commit -a")
 + git show
-+ git -c core.fileMode=false diff f8fab6f90233c7114d642dfe01a4e6d4cb14ee7d
 commit 204ddaf39dab731a1227cc315b3f4a24723b5325
 Author: SWE-bench <setup@swebench.config>
 Date:   Wed Sep 10 13:46:06 2025 +0000
 
     SWE-bench
++ git -c core.fileMode=false diff f8fab6f90233c7114d642dfe01a4e6d4cb14ee7d
 diff --git a/django/core/management/commands/makemigrations.py b/django/core/management/commands/makemigrations.py
 index 0b39536f5b..dc7244f883 100644
 --- a/django/core/management/commands/makemigrations.py
@@ -322,8 +322,8 @@ running bdist_egg
 running egg_info
 writing requirements to Django.egg-info/requires.txt
 writing top-level names to Django.egg-info/top_level.txt
-writing Django.egg-info/PKG-INFO
 writing dependency_links to Django.egg-info/dependency_links.txt
+writing Django.egg-info/PKG-INFO
 writing entry points to Django.egg-info/entry_points.txt
 reading manifest file 'Django.egg-info/SOURCES.txt'
 reading manifest template 'MANIFEST.in'
@@ -6671,15 +6671,15 @@ test_squashmigrations_invalid_start (migrations.test_commands.SquashMigrationsTe
 test_squashmigrations_optimizes (migrations.test_commands.SquashMigrationsTests) ... ok
 test_squashmigrations_squashes (migrations.test_commands.SquashMigrationsTests) ... ok
 test_squashmigrations_valid_start (migrations.test_commands.SquashMigrationsTests) ... ok
-test_ticket_23799_squashmigrations_no_optimize (migrations.test_commands.SquashMigrationsTests) ... ok
-
-----------------------------------------------------------------------
-Ran 63 tests in 0.799s
-
-OK
- OK
+test_ticket_23799_squashmigrations_no_optimize (migrations.test_commands.SquashMigrationsTests) ...  OK
 Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
 Destroying test database for alias 'other' ('file:memorydb_other?mode=memory&cache=shared')...
+ok
+
+----------------------------------------------------------------------
+Ran 63 tests in 0.781s
+
+OK
 + : '>>>>> End Test Output'
 + git checkout f8fab6f90233c7114d642dfe01a4e6d4cb14ee7d tests/migrations/test_commands.py
 Updated 1 path from 65f8c6d084
